@@ -16,7 +16,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('VipPos')
     .setDescription('The VipPos API description')
-    .setVersion('0.2')
+    .setVersion('0.3')
     .addBearerAuth()
     .build();
 

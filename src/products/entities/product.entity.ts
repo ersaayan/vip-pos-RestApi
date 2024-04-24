@@ -18,8 +18,17 @@ export class ProductEntity implements Product {
   PhoneModelGroupCode: string;
 
   @ApiProperty()
+  Description: string;
+
+  @ApiProperty()
+  Barcode: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  stockKartId: string;
 }

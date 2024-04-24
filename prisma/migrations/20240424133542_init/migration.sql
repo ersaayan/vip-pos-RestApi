@@ -2,7 +2,6 @@
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT,
     "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -17,10 +16,26 @@ CREATE TABLE "Product" (
     "PhoneBrandModelStockCode" TEXT NOT NULL,
     "PhoneBrandName" TEXT NOT NULL,
     "PhoneModelGroupCode" TEXT NOT NULL,
+    "Description" TEXT,
+    "Barcode" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockKart" (
+    "id" TEXT NOT NULL,
+    "CaseBrand" TEXT NOT NULL,
+    "CaseModelImage" TEXT NOT NULL,
+    "CaseModelVariations" TEXT[],
+    "CaseModelTitle" TEXT NOT NULL,
+    "ProductIds" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "StockKart_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

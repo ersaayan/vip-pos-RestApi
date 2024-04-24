@@ -27,7 +27,18 @@ model Product {
   PhoneBrandModelStockCode  String
   PhoneBrandName            String
   PhoneModelGroupCode       String
+  Description               String?
+  Barcode                   Int?   
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
 }
-
+model StockKart {
+  id                  String      @id @default(cuid())
+  CaseBrand           String
+  CaseModelImage      String
+  CaseModelVariations String[]
+  CaseModelTitle      String
+  ProductIds          String[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+}

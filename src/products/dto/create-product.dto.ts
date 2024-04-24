@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
@@ -22,4 +28,14 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   PhoneModelGroupCode: string;
+
+  @ApiProperty({ required: true, description: 'Description' })
+  @IsString()
+  @IsOptional()
+  Description: string;
+
+  @ApiProperty({ required: true, description: 'Barcode' })
+  @IsNumber()
+  @IsNumber()
+  Barcode: number;
 }
