@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('VipPos')
     .setDescription('The VipPos API description')
     .setVersion('0.2')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
