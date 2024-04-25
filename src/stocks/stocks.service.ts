@@ -70,10 +70,16 @@ export class StocksService {
     const stockKarts = await this.prisma.stockKart.findMany({});
 
     // Excel dosyasını oluştur
-    const workbook = new excel.Workbook();
-    const worksheet = workbook.addWorksheet('StokKart');
-
-    // Kolon başlıklarını ekle
+    const workspace = new excel.Workbook();
+    const tempfilePath = path.join(
+      __dirname,
+      '../../..',
+      'templates',
+      'StokListesi.xlsx',
+    );
+    const workbook = await workspace.xlsx.readFile(tempfilePath);
+    const worksheet = await workbook.getWorksheet(1);
+    /* // Kolon başlıklarını ekle
     worksheet.addRow([
       'Tipi',
       'Stok Kodu',
@@ -108,7 +114,7 @@ export class StocksService {
       'Risk Suresi',
       'Puan',
       'Iskonto',
-    ]);
+    ]); */
 
     for (const stockKart of stockKarts) {
       const Product = await this.prisma.product.findUnique({
@@ -159,7 +165,7 @@ export class StocksService {
       'exports',
       'StokListesi-myor.xlsx',
     );
-    await workbook.xlsx.writeFile(filePath);
+    await workspace.xlsx.writeFile(filePath);
 
     return filePath;
   }
