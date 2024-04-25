@@ -23,9 +23,15 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-
+    const accessToken = this.generateAccessToken(user.id);
     return {
-      accessToken: this.jwtService.sign({ userId: user.id }),
+      accessToken,
     };
+  }
+
+  private generateAccessToken(userId: string): string {
+    const payload = { userId };
+    const options = { expiresIn: '1h' }; // AccessToken'un süresi 1 saat olarak belirlendi
+    return this.jwtService.sign(payload, options);
   }
 }
