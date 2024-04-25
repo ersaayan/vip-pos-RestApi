@@ -38,6 +38,7 @@ export class StocksController {
     @Body() body: any,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
+    await this.stocksService.deleteAllStockKarts();
     const { CaseBrand, CaseModelVariations, CaseModelTitle, ProductIds } = body;
     const data: Prisma.StockKartCreateInput = {
       CaseBrand,
