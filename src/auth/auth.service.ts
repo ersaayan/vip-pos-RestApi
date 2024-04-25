@@ -31,7 +31,7 @@ export class AuthService {
 
   private generateAccessToken(userId: string): string {
     const payload = { userId };
-    const options = { expiresIn: '1h' }; // AccessToken'un süresi 1 saat olarak belirlendi
+    const options = { expiresIn: '12h' };
     return this.jwtService.sign(payload, options);
   }
 }
