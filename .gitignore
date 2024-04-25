@@ -56,7 +56,7 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# Excel files in templates folder
-/templates/
+# Excel files in exports folder
+/exports/
 *.xlsx
-/templates/*.xlsx
+/exports/*.xlsx

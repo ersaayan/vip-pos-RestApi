@@ -152,12 +152,11 @@ export class StocksService {
 
       row.font = { bold: false };
     }
-    await workbook.xlsx.writeFile('StokListesi-myor.xlsx');
     // Dosyayı kaydet
     const filePath = path.join(
       __dirname,
       '../../..',
-      'templates',
+      'exports',
       'StokListesi-myor.xlsx',
     );
     await workbook.xlsx.writeFile(filePath);
