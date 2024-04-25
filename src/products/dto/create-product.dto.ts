@@ -16,7 +16,7 @@ export class CreateProductDto {
   @ApiProperty({ required: true, description: 'Stock Code' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(35)
+  @MaxLength(14)
   PhoneBrandModelStockCode: string;
 
   @ApiProperty({ required: true, description: 'Brand Name' })

@@ -16,8 +16,6 @@ CREATE TABLE "Product" (
     "PhoneBrandModelStockCode" TEXT NOT NULL,
     "PhoneBrandName" TEXT NOT NULL,
     "PhoneModelGroupCode" TEXT NOT NULL,
-    "Description" TEXT,
-    "Barcode" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -31,7 +29,9 @@ CREATE TABLE "StockKart" (
     "CaseModelImage" TEXT NOT NULL,
     "CaseModelVariations" TEXT[],
     "CaseModelTitle" TEXT NOT NULL,
-    "ProductIds" TEXT NOT NULL,
+    "ProductIds" TEXT[],
+    "Description" TEXT,
+    "Barcode" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

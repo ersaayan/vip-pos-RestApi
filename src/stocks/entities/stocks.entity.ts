@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StockKart } from '@prisma/client';
 
 export class StocksEntity implements StockKart {
@@ -18,6 +18,12 @@ export class StocksEntity implements StockKart {
 
   @ApiProperty()
   ProductIds: string[];
+
+  @ApiPropertyOptional()
+  Description: string;
+
+  @ApiPropertyOptional()
+  Barcode: string;
 
   createdAt: Date;
 

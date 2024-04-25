@@ -45,13 +45,22 @@ export class StocksController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
     await this.stocksService.deleteAllStockKarts();
-    const { CaseBrand, CaseModelVariations, CaseModelTitle, ProductIds } = body;
+    const {
+      CaseBrand,
+      CaseModelVariations,
+      CaseModelTitle,
+      ProductIds,
+      Description,
+      Barcode,
+    } = body;
     const data: Prisma.StockKartCreateInput = {
       CaseBrand,
       CaseModelImage: file.filename,
       CaseModelVariations: CaseModelVariations.split(','),
       CaseModelTitle,
       ProductIds: ProductIds.split(','),
+      Description,
+      Barcode,
     };
     const createdStockKart = await this.stocksService.createStockKart(
       data,
@@ -59,6 +68,7 @@ export class StocksController {
     );
     return createdStockKart;
   }
+
   @Get('myor-export')
   @ApiOperation({
     summary: "Swagger doesn't support download file. You must request new tab.",
@@ -67,8 +77,21 @@ export class StocksController {
     status: 200,
     description: 'Excel file generated successfully',
   })
-  async exportToExcel(@Res() res: Response) {
-    const filePath = await this.stocksService.exportToExcel();
+  async exportToExcelMyor(@Res() res: Response) {
+    const filePath = await this.stocksService.exportToExcelForMyor();
+    res.sendFile(path.resolve(filePath));
+  }
+
+  @Get('ikas-export')
+  @ApiOperation({
+    summary: "Swagger doesn't support download file. You must request new tab.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Excel file generated successfully',
+  })
+  async exportToExcelIkas(@Res() res: Response) {
+    const filePath = await this.stocksService.exportToExcelForIkas();
     res.sendFile(path.resolve(filePath));
   }
 }

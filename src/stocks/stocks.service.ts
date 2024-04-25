@@ -12,18 +12,27 @@ export class StocksService {
     data: Prisma.StockKartCreateInput,
     file: Express.Multer.File,
   ): Promise<any> {
-    const { CaseBrand, CaseModelVariations, CaseModelTitle, ProductIds } = data;
+    const {
+      CaseBrand,
+      CaseModelVariations,
+      CaseModelTitle,
+      ProductIds,
+      Description,
+      Barcode,
+    } = data;
     const CaseModelImage = this.handleFileUpload(file);
     const stockKarts = [];
 
-    for (const variation of this.toArray(CaseModelVariations)) {
-      for (const productId of this.toArray(ProductIds)) {
+    for (const productId of this.toArray(ProductIds)) {
+      for (const variation of this.toArray(CaseModelVariations)) {
         const newData: Prisma.StockKartCreateInput = {
           CaseBrand,
           CaseModelImage,
           CaseModelVariations: [variation],
           CaseModelTitle,
           ProductIds: [productId],
+          Description,
+          Barcode,
         };
         const createdStockKart = await this.prisma.stockKart.create({
           data: newData,
@@ -65,7 +74,7 @@ export class StocksService {
     return [];
   }
 
-  async exportToExcel() {
+  async exportToExcelForMyor() {
     // Veritabanından gerekli verileri al
     const stockKarts = await this.prisma.stockKart.findMany({});
 
@@ -73,48 +82,12 @@ export class StocksService {
     const workspace = new excel.Workbook();
     const tempfilePath = path.join(
       __dirname,
-      '../../..',
+      '../..',
       'templates',
       'StokListesi.xlsx',
     );
     const workbook = await workspace.xlsx.readFile(tempfilePath);
     const worksheet = await workbook.getWorksheet(1);
-    /* // Kolon başlıklarını ekle
-    worksheet.addRow([
-      'Tipi',
-      'Stok Kodu',
-      'Stok Adi',
-      'Grup Kodu',
-      'Kod1',
-      'Kod2',
-      'Kod3',
-      'Kod4',
-      'Kod5',
-      'Olcu Birim1',
-      'Satis Fiyat1',
-      'Satis Fiyat2',
-      'Satis Fiyat3',
-      'Satis Fiyat4',
-      'Satis Doviz Tipi',
-      'Satis Doviz Fiyat',
-      'Alis Doviz Tipi',
-      'Alis Doviz Fiyat',
-      'Satis Kdv Oran',
-      'Alis Kdv Oran',
-      'Toptan Satis Kdv Orani',
-      'Toptan Alis Kdv Orani',
-      'Barkod1',
-      'Barkod2',
-      'Barkod3',
-      'Alis Fiyat1',
-      'Alis Fiyat2',
-      'Alis Fiyat3',
-      'Alis Fiyat4',
-      'Risk Adedi',
-      'Risk Suresi',
-      'Puan',
-      'Iskonto',
-    ]); */
 
     for (const stockKart of stockKarts) {
       const Product = await this.prisma.product.findUnique({
@@ -122,7 +95,10 @@ export class StocksService {
       });
       const row = worksheet.addRow([
         'Stok',
-        `${stockKart.CaseBrand} ${Product.PhoneBrandModelStockCode} ${stockKart.CaseModelVariations}`,
+        `${stockKart.CaseBrand}\\${Product.PhoneBrandModelStockCode}/${stockKart.CaseModelVariations[0].replace(
+          /\s/g,
+          '',
+        )}`,
         `${Product.PhoneBrandModelName} ${stockKart.CaseBrand} ${stockKart.CaseModelVariations} ${stockKart.CaseModelTitle}`,
         '',
         '',
@@ -143,7 +119,7 @@ export class StocksService {
         0,
         0,
         0,
-        Product.Barcode,
+        stockKart.Barcode,
         '',
         '',
         0.01,
@@ -161,9 +137,89 @@ export class StocksService {
     // Dosyayı kaydet
     const filePath = path.join(
       __dirname,
-      '../../..',
+      '../..',
       'exports',
       'StokListesi-myor.xlsx',
+    );
+    await workspace.xlsx.writeFile(filePath);
+
+    return filePath;
+  }
+
+  async exportToExcelForIkas() {
+    // Veritabanından gerekli verileri al
+    const stockKarts = await this.prisma.stockKart.findMany({});
+
+    // Excel dosyasını oluştur
+    const workspace = new excel.Workbook();
+    const tempfilePath = path.join(
+      __dirname,
+      '../..',
+      'templates',
+      'IkasUrunEkleme.xlsx',
+    );
+    const workbook = await workspace.xlsx.readFile(tempfilePath);
+    const worksheet = await workbook.getWorksheet(1);
+
+    for (const stockKart of stockKarts) {
+      const Product = await this.prisma.product.findUnique({
+        where: { id: stockKart.ProductIds[0] },
+      });
+      const row = worksheet.addRow([
+        `${stockKart.CaseBrand}-${Product.PhoneModelGroupCode.replace(
+          /\s/g,
+          '',
+        )}`,
+        '',
+        `${Product.PhoneBrandName} ${Product.PhoneModelGroupCode} ${stockKart.CaseModelTitle} ${stockKart.CaseBrand}`,
+        `${stockKart.Description}`,
+        0.01,
+        0.01,
+        0.01,
+        `${stockKart.Barcode}`,
+        `${stockKart.CaseBrand}\\${Product.PhoneBrandModelStockCode}/${stockKart.CaseModelVariations[0].replace(
+          /\s/g,
+          '',
+        )}`,
+        'YANLIŞ',
+        'Vip Case',
+        'Telefon Kılıf ve Aksesuarları>Telefon Kılıfları',
+        ``,
+        `${stockKart.CaseModelImage}`,
+        '',
+        '',
+        '',
+        50,
+        'Renk',
+        `${stockKart.CaseModelVariations[0]}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        'VISIBLE',
+        'PASSIVE',
+        '',
+        '',
+        '',
+        '',
+      ]);
+
+      row.font = { bold: false };
+    }
+    // Dosyayı kaydet
+    const filePath = path.join(
+      __dirname,
+      '../..',
+      'exports',
+      'StokListesi-ikas.xlsx',
     );
     await workspace.xlsx.writeFile(filePath);
 

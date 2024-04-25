@@ -26,9 +26,7 @@ model Product {
   PhoneBrandModelName       String
   PhoneBrandModelStockCode  String
   PhoneBrandName            String
-  PhoneModelGroupCode       String
-  Description               String?
-  Barcode                   Int?   
+  PhoneModelGroupCode       String  
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
 }
@@ -39,6 +37,8 @@ model StockKart {
   CaseModelVariations String[]
   CaseModelTitle      String
   ProductIds          String[]
+  Description         String?
+  Barcode             String? 
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 }
