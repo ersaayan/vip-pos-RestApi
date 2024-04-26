@@ -26,6 +26,7 @@ export class AuthService {
     const accessToken = this.generateAccessToken(user.id);
     return {
       accessToken,
+      isSuccess: true,
     };
   }
 
