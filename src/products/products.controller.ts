@@ -42,8 +42,6 @@ export class ProductsController {
   }
   @Get()
   @ApiOkResponse({ type: ProductEntity, isArray: true })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   findAll() {
     return this.productsService.findAll();
   }

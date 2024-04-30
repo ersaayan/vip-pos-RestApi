@@ -22,15 +22,20 @@ export class StocksService {
     } = data;
     const CaseModelImage = this.handleFileUpload(file);
     const stockKarts = [];
-
     for (const productId of this.toArray(ProductIds)) {
       for (const variation of this.toArray(CaseModelVariations)) {
+        const ProductSKU = await this.prisma.product.findUnique({
+          where: { id: productId },
+        });
+        console.log(ProductSKU);
         const newData: Prisma.StockKartCreateInput = {
           CaseBrand,
           CaseModelImage,
           CaseModelVariations: [variation],
           CaseModelTitle,
-          ProductIds: [productId],
+          ProductIds: [
+            `${CaseBrand}\\${ProductSKU.PhoneBrandModelStockCode}/${CaseModelVariations[0].replace(/\s/g, '')}`,
+          ],
           Description,
           Barcode,
         };
@@ -74,6 +79,27 @@ export class StocksService {
     return [];
   }
 
+  async getAllStockKarts(): Promise<any> {
+    return this.prisma.stockKart.findMany({});
+  }
+
+  async deleteIdsNotSent(ids: string[]): Promise<any> {
+    const allTableIds = await this.prisma.stockKart.findMany({
+      select: {
+        id: true,
+      },
+    });
+    const allIds = allTableIds.map((item) => item.id);
+    const idsToDelete = allIds.filter((id) => !ids.includes(id));
+    return this.prisma.stockKart.deleteMany({
+      where: {
+        id: {
+          in: idsToDelete,
+        },
+      },
+    });
+  }
+
   async exportToExcelForMyor() {
     // Veritabanından gerekli verileri al
     const stockKarts = await this.prisma.stockKart.findMany({});
@@ -99,7 +125,11 @@ export class StocksService {
           /\s/g,
           '',
         )}`,
-        `${Product.PhoneBrandModelName} ${stockKart.CaseBrand} ${stockKart.CaseModelVariations} ${stockKart.CaseModelTitle}`,
+        `${Product.PhoneBrandModelName} ${stockKart.CaseBrand} ${stockKart.CaseModelVariations[0].replace(
+          /\s/g,
+          '',
+        )}`,
+        `${stockKart.CaseModelTitle}`,
         '',
         '',
         '',
@@ -191,7 +221,7 @@ export class StocksService {
         '',
         50,
         'Renk',
-        `${stockKart.CaseModelVariations[0]}`,
+        `${stockKart.CaseModelVariations[0].replace(/\s/g, '')}`,
         '',
         '',
         '',

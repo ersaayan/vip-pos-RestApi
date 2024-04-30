@@ -4,13 +4,12 @@ import {
   Body,
   UploadedFile,
   UseInterceptors,
-  UseGuards,
   Get,
   Res,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -18,7 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { StocksService } from './stocks.service';
 import { Prisma } from '@prisma/client';
 import { StocksEntity } from './entities/stocks.entity';
@@ -32,8 +30,6 @@ export class StocksController {
 
   @Post()
   @UseInterceptors(FileInterceptor('CaseModelImage'))
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Stock Kart data',
@@ -67,6 +63,31 @@ export class StocksController {
       file,
     );
     return createdStockKart;
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Get all stock karts',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock karts fetched successfully',
+  })
+  async getAllStockKarts(): Promise<any> {
+    return this.stocksService.getAllStockKarts();
+  }
+
+  @Delete('delete-ids-not-sent')
+  @ApiOperation({
+    summary: 'Delete stock karts except the ones with provided IDs',
+  })
+  @ApiBody({
+    description: 'Array of IDs to keep',
+    type: [String],
+  })
+  async deleteIdsNotSent(@Body() body: any): Promise<any> {
+    const { ids } = body;
+    return this.stocksService.deleteIdsNotSent(ids);
   }
 
   @Get('myor-export')
