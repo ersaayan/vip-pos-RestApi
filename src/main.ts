@@ -6,7 +6,21 @@ import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-cl
 declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  });
+  app.use((req, res, next) => {
+    res.set({
+      'Strict-Transport-Security':
+        'max-age=31536000; includeSubDomains; preload',
+    });
+    next();
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
