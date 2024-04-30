@@ -77,6 +77,18 @@ export class StocksController {
     return this.stocksService.getAllStockKarts();
   }
 
+  @Get('custom-output')
+  @ApiOperation({
+    summary: 'Get all stock karts with custom output',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock karts with custom output fetched successfully',
+  })
+  async getAllStockKartsWithCustomOutput(): Promise<any> {
+    return this.stocksService.getAllStockKartsWithCustomOutput();
+  }
+
   @Delete('delete-ids-not-sent')
   @ApiOperation({
     summary: 'Delete stock karts except the ones with provided IDs',

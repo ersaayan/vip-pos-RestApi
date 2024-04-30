@@ -20,7 +20,7 @@ export class StocksService {
       Description,
       Barcode,
     } = data;
-    const CaseModelImage = this.handleFileUpload(file);
+    const CaseModelImage = await this.handleFileUpload(file);
     const stockKarts = [];
     for (const productId of this.toArray(ProductIds)) {
       for (const variation of this.toArray(CaseModelVariations)) {
@@ -33,9 +33,7 @@ export class StocksService {
           CaseModelImage,
           CaseModelVariations: [variation],
           CaseModelTitle,
-          ProductIds: [
-            `${CaseBrand}\\${ProductSKU.PhoneBrandModelStockCode}/${CaseModelVariations[0].replace(/\s/g, '')}`,
-          ],
+          ProductIds: [productId],
           Description,
           Barcode,
         };
@@ -52,12 +50,17 @@ export class StocksService {
     return this.prisma.stockKart.deleteMany({});
   }
 
-  private handleFileUpload(file: Express.Multer.File): string {
+  private handleFileUpload(file: Express.Multer.File): Promise<string> {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = path.resolve(__dirname, '..', '..', 'uploads', fileName);
-    const fileStream = createWriteStream(filePath);
-    fileStream.write(file.buffer);
-    return filePath;
+
+    return new Promise((resolve, reject) => {
+      const fileStream = createWriteStream(filePath);
+      fileStream.on('finish', () => resolve(filePath));
+      fileStream.on('error', reject);
+      fileStream.write(file.buffer);
+      fileStream.end();
+    });
   }
 
   private toArray(
@@ -77,6 +80,31 @@ export class StocksService {
       console.log('connect');
     }
     return [];
+  }
+
+  async getAllStockKartsWithCustomOutput(): Promise<any[]> {
+    const stockKarts = await this.prisma.stockKart.findMany({});
+    const customOutput = stockKarts.map(async (stockKart) => {
+      const Product = await this.prisma.product.findUnique({
+        where: { id: stockKart.ProductIds[0] },
+      });
+      return {
+        id: stockKart.id,
+        CaseBrand: stockKart.CaseBrand,
+        CaseModelVariations: stockKart.CaseModelVariations,
+        CaseModelTitle: stockKart.CaseModelTitle,
+        ProductIds: stockKart.ProductIds,
+        Description: stockKart.Description,
+        Barcode: stockKart.Barcode,
+        CaseModelImage: stockKart.CaseModelImage,
+        // İstediğiniz özel çıktılar
+        myorStockName: `${Product.PhoneBrandModelName} ${stockKart.CaseBrand} ${stockKart.CaseModelVariations[0].replace(/\s/g, ' ')}`,
+
+        ikasStockName: `${Product.PhoneBrandName} ${Product.PhoneModelGroupCode} ${stockKart.CaseModelTitle} ${stockKart.CaseBrand}`,
+        stockCode: `${stockKart.CaseBrand}/${Product.PhoneBrandModelStockCode}/${stockKart.CaseModelVariations[0].replace(/\s/g, ' ').trim()}`,
+      };
+    });
+    return Promise.all(customOutput);
   }
 
   async getAllStockKarts(): Promise<any> {
@@ -130,7 +158,6 @@ export class StocksService {
           '',
         )}`,
         `${stockKart.CaseModelTitle}`,
-        '',
         '',
         '',
         '',
