@@ -35,8 +35,6 @@ export class ProductsController {
   }
   @Post('multiple')
   @ApiCreatedResponse({ type: ProductEntity })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   createMultiple(@Body() createProductDtos: CreateProductDto[]) {
     return this.productsService.createMultiple(createProductDtos);
   }
