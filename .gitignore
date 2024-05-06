@@ -60,3 +60,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /exports/
 *.xlsx
 /exports/*.xlsx
+/public
+/prisma/migrations
+prisma/migrations/migration_lock.toml
