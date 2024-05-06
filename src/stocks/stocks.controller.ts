@@ -72,7 +72,7 @@ export class StocksController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all stock karts',
+    summary: 'Get all stock karts yedek',
   })
   @ApiResponse({
     status: 200,
@@ -82,6 +82,14 @@ export class StocksController {
     return this.stocksService.getAllStockKartsYedek();
   }
 
+  @Get()
+  @ApiOperation({
+    summary: 'Get all stock karts',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock karts fetched successfully',
+  })
   async getAllStockKarts(): Promise<any> {
     return this.stocksService.getAllStockKarts();
   }
