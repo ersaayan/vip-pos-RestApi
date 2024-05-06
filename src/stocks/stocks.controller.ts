@@ -70,7 +70,7 @@ export class StocksController {
     return createdStockKart;
   }
 
-  @Get()
+  @Get('yedek')
   @ApiOperation({
     summary: 'Get all stock karts yedek',
   })
