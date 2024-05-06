@@ -22,6 +22,7 @@ export class StocksService {
     } = data;
     const CaseModelImage = await this.handleFileUpload(file);
     const stockKarts = [];
+    await this.deleteAllStockKartsYedek();
     for (const productId of this.toArray(ProductIds)) {
       for (const variation of this.toArray(CaseModelVariations)) {
         const ProductSKU = await this.prisma.product.findUnique({
