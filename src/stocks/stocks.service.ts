@@ -171,6 +171,12 @@ export class StocksService {
     });
   }
 
+  async updateAllStockKarts(data: Prisma.StockKartUpdateInput) {
+    return this.prisma.stockKart.updateMany({
+      data: { ...data, updatedAt: new Date() },
+    });
+  }
+
   // transfer all stock karts from yedek to main table
   async transferStockKarts(): Promise<any> {
     const stockKarts = await this.prisma.stockKartYedek.findMany({});

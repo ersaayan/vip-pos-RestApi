@@ -184,6 +184,22 @@ export class StocksController {
     }
   }
 
+  @Patch('/update-all')
+  updateAllStockKarts(@Body() body: Prisma.StockKartUpdateInput) {
+    try {
+      return {
+        success: true,
+        message: 'Veriler başarıyla güncellendi',
+        data: this.stocksService.updateAllStockKarts(body),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Veri güncelleme sırasında bir hata oluştu',
+      };
+    }
+  }
+
   @Get('myor-export')
   @ApiOperation({
     summary: "Swagger doesn't support download file. You must request new tab.",
