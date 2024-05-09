@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { StocksModule } from './stocks/stocks.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/uploads',
     }),
+    DatabaseModule,
   ],
   providers: [ConfigService],
 })
