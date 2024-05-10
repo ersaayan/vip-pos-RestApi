@@ -1,7 +1,7 @@
 import time
 from flask import Flask, jsonify
 from flask_cors import CORS, cross_origin
-import pyodbc
+import mysql.connector
 
 cors = CORS()
 app = Flask(__name__)
@@ -26,26 +26,18 @@ cors.init_app(
 )
 
 
-# SQL Server bağlantı bilgileri
-server = "95.173.181.140"
-database = "MYOR"
-username = "sa"
-password = "1234"
-driver = "{ODBC Driver 17 for SQL Server}"
+config = {
+  'user': 'sa',
+  'password': '1234',
+  'host': '95.173.181.140',
+  'database': 'MYOR',
+  'raise_on_warnings': True,
+  'port':'1433',
+}
+
 
 # SQL Server'a bağlan
-conn = pyodbc.connect(
-    "DRIVER="
-    + driver
-    + ";SERVER="
-    + server
-    + ";DATABASE="
-    + database
-    + ";UID="
-    + username
-    + ";PWD="
-    + password
-)
+conn = mysql.connector.connect(**config)
 
 
 # Endpoint 1: Haftanın en çok satan 10 ürünü

@@ -5,9 +5,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
 declare const module: any;
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {cors:true});
   app.setGlobalPrefix('api');
-  app.enableCors({
+  /* app.enableCors({
+    origin: true,
     allowedHeaders: [
       'Content-Type',
       'Authorization',
@@ -18,12 +19,9 @@ async function bootstrap() {
       'Access-Control-Allow-Headers',
       'Access-Control-Allow-Methods',
     ],
-    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    preflightContinue: false,
-    optionsSuccessStatus: 200,
     credentials: true,
-  });
+  }); */
   app.use((req, res, next) => {
     res.set({
       'Strict-Transport-Security':
