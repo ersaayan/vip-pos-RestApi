@@ -27,7 +27,7 @@ cors.init_app(
 
 
 # SQL Server bağlantı bilgileri
-server = "localhost"
+server = "95.173.181.140"
 database = "MYOR"
 username = "sa"
 password = "1234"
