@@ -2,7 +2,6 @@
 /dist
 /node_modules
 /build
-/uploads
 
 # Logs
 logs
@@ -55,13 +54,3 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Excel files in exports folder
-
-/exports/*.xlsx
-public/uploads
-/prisma/migrations
-prisma/migrations/migration_lock.toml
-.venv
-public/**.jpg
-public/**.png
