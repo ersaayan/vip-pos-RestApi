@@ -1,4 +1,3 @@
-import time
 from flask import Flask, jsonify
 from flask_cors import CORS, cross_origin
 import pyodbc
@@ -45,6 +44,7 @@ conn = pyodbc.connect(
     + username
     + ";PWD="
     + password
+    + ";MARS_Connection=yes"
 )
 
 
@@ -52,7 +52,6 @@ conn = pyodbc.connect(
 @cross_origin()
 @app.route("/haftanin_en_cok_satan_urunleri", methods=["GET"])
 def haftanin_en_cok_satan_urunleri():
-    time.sleep(9)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -76,7 +75,6 @@ def haftanin_en_cok_satan_urunleri():
 @app.route("/gunun_en_cok_satan_urunu", methods=["GET"])
 @cross_origin()
 def gunun_en_cok_satan_urunu():
-    time.sleep(10)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -100,7 +98,6 @@ def gunun_en_cok_satan_urunu():
 @app.route("/haftalik_toplam_siparis_sayisi", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_siparis_sayisi():
-    time.sleep(12)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -120,7 +117,6 @@ def haftalik_toplam_siparis_sayisi():
 # Endpoint 4: Günlük toplam sipariş sayısı
 @app.route("/gunluk_toplam_siparis_sayisi", methods=["GET"])
 def gunluk_toplam_siparis_sayisi():
-    time.sleep(13)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -141,7 +137,6 @@ def gunluk_toplam_siparis_sayisi():
 @app.route("/toplam_kargolanmayı_bekleyen_siparis_sayisi", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_kargolanan_siparis_sayisi():
-    time.sleep(14)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -160,7 +155,6 @@ def gunluk_toplam_kargolanan_siparis_sayisi():
 @app.route("/haftalik_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_satis_sayisi():
-    time.sleep(15)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -182,7 +176,6 @@ def haftalik_toplam_satis_sayisi():
 @app.route("/gunluk_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_satis_sayisi():
-    time.sleep(16)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -204,7 +197,6 @@ def gunluk_toplam_satis_sayisi():
 @app.route("/haftalik_toplam_ciro", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_ciro():
-    time.sleep(18)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -226,7 +218,6 @@ def haftalik_toplam_ciro():
 @app.route("/gunluk_toplam_ciro", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_ciro():
-    time.sleep(20)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -248,7 +239,6 @@ def gunluk_toplam_ciro():
 @app.route("/dün-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def dün_yapılan_satıslar():
-    time.sleep(5)
     cursor = conn.cursor()
     cursor.execute(
         """
