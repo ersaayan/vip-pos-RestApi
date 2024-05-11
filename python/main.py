@@ -50,7 +50,7 @@ conn = pyodbc.connect(
 
 # Endpoint 1: Haftanın en çok satan 10 ürünü
 @cross_origin()
-@app.route("/haftanin_en_cok_satan_urunleri", methods=["GET"])
+@app.route("/flask/haftanin_en_cok_satan_urunleri", methods=["GET"])
 def haftanin_en_cok_satan_urunleri():
     cursor = conn.cursor()
     cursor.execute(
@@ -72,7 +72,7 @@ def haftanin_en_cok_satan_urunleri():
 
 
 # Endpoint 2: Günün en çok satan ürünü
-@app.route("/gunun_en_cok_satan_urunu", methods=["GET"])
+@app.route("/flask/gunun_en_cok_satan_urunu", methods=["GET"])
 @cross_origin()
 def gunun_en_cok_satan_urunu():
     cursor = conn.cursor()
@@ -95,7 +95,7 @@ def gunun_en_cok_satan_urunu():
 
 
 # Endpoint 3: Haftalık toplam sipariş sayısı
-@app.route("/haftalik_toplam_siparis_sayisi", methods=["GET"])
+@app.route("/flask/haftalik_toplam_siparis_sayisi", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_siparis_sayisi():
     cursor = conn.cursor()
@@ -115,7 +115,7 @@ def haftalik_toplam_siparis_sayisi():
 
 
 # Endpoint 4: Günlük toplam sipariş sayısı
-@app.route("/gunluk_toplam_siparis_sayisi", methods=["GET"])
+@app.route("/flask/gunluk_toplam_siparis_sayisi", methods=["GET"])
 def gunluk_toplam_siparis_sayisi():
     cursor = conn.cursor()
     cursor.execute(
@@ -134,7 +134,7 @@ def gunluk_toplam_siparis_sayisi():
 
 
 # Endpoint 5: Günlük toplam kargolanan sipariş sayısı
-@app.route("/toplam_kargolanmayı_bekleyen_siparis_sayisi", methods=["GET"])
+@app.route("/flask/toplam_kargolanmayı_bekleyen_siparis_sayisi", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_kargolanan_siparis_sayisi():
     cursor = conn.cursor()
@@ -152,7 +152,7 @@ def gunluk_toplam_kargolanan_siparis_sayisi():
 
 
 # Endpoint 6: Haftalık toplam satılan ürün sayısı
-@app.route("/haftalik_toplam_satis_sayisi", methods=["GET"])
+@app.route("/flask/haftalik_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_satis_sayisi():
     cursor = conn.cursor()
@@ -173,7 +173,7 @@ def haftalik_toplam_satis_sayisi():
 
 
 # Endpoint 7: Günlük toplam satılan ürün sayısı
-@app.route("/gunluk_toplam_satis_sayisi", methods=["GET"])
+@app.route("/flask/gunluk_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_satis_sayisi():
     cursor = conn.cursor()
@@ -194,7 +194,7 @@ def gunluk_toplam_satis_sayisi():
 
 
 # Endpoint 8: Haftalık toplam ciro
-@app.route("/haftalik_toplam_ciro", methods=["GET"])
+@app.route("/flask/haftalik_toplam_ciro", methods=["GET"])
 @cross_origin()
 def haftalik_toplam_ciro():
     cursor = conn.cursor()
@@ -215,7 +215,7 @@ def haftalik_toplam_ciro():
 
 
 # Endpoint 9: Günlük toplam ciro
-@app.route("/gunluk_toplam_ciro", methods=["GET"])
+@app.route("/flask/gunluk_toplam_ciro", methods=["GET"])
 @cross_origin()
 def gunluk_toplam_ciro():
     cursor = conn.cursor()
@@ -236,7 +236,7 @@ def gunluk_toplam_ciro():
 
 
 # Endpoint 10: DÜn yapılan satışlar
-@app.route("/dün-yapılan-satışlar-grafiği", methods=["GET"])
+@app.route("/flask/dün-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def dün_yapılan_satıslar():
     cursor = conn.cursor()
@@ -290,8 +290,8 @@ ORDER BY
     return jsonify(result)
 
 
-# Endpoint 10: bugÜn yapılan satışlar
-@app.route("/bugün-yapılan-satışlar-grafiği", methods=["GET"])
+# Endpoint 11: bugÜn yapılan satışlar
+@app.route("/flask/bugün-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def bugün_yapılan_satıslar():
     cursor = conn.cursor()
@@ -346,4 +346,4 @@ ORDER BY
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host="0.0.0.0")
