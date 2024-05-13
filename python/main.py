@@ -133,6 +133,7 @@ def gunluk_toplam_siparis_sayisi():
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
+
 # Endpoint 4: Günlük toplam sipariş sayısı
 @app.route("/flask/dun_toplam_siparis_sayisi", methods=["GET"])
 def dun_toplam_siparis_sayisi():
@@ -150,6 +151,7 @@ def dun_toplam_siparis_sayisi():
     row = cursor.fetchone()
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
+
 
 # Endpoint 6: Haftalık toplam satılan ürün sayısı
 @app.route("/flask/dun_toplam_satis_sayisi", methods=["GET"])
@@ -234,6 +236,7 @@ def gunluk_toplam_ciro():
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
+
 # Endpoint 10: Günlük toplam ciro
 @app.route("/flask/dun_toplam_ciro", methods=["GET"])
 @cross_origin()
@@ -254,13 +257,16 @@ def dun_toplam_ciro():
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
+
 # Endpoint 11: Dün yapılan satışlar
 @app.route("/flask/dun-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def dün_yapılan_satıslar():
-    yesterday_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+    yesterday_start = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ) - timedelta(days=1)
     yesterday_end = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    
+
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -296,7 +302,8 @@ GROUP BY
     END
 ORDER BY 
     SaatAraligi;
-    """, (yesterday_start, yesterday_end)
+    """,
+        (yesterday_start, yesterday_end),
     )
     rows = cursor.fetchall()
     result = [
@@ -359,6 +366,30 @@ ORDER BY
             "Saat": row.SaatAraligi,
             "Toplam_Miktar": row.ToplamMiktar,
             "Toplam_Ciro": row.ToplamCiro,
+        }
+        for row in rows
+    ]
+    return jsonify(result)
+
+
+# Kargo rakip numarasına göre siparis kalemlerini getirme
+@app.route("/flask/kargo_rakip_numarasina_gore_siparis_kalemleri/:id", methods=["GET"])
+@cross_origin()
+def kargo_rakip_numarasina_gore_siparis_kalemleri(id):
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        Select UrunAdi, Miktar from ConnectSiparisKalemleri INNER JOIN ConnectSiparisEk 
+        ON ConnectSiparisEk.SiparisId = ConnectSiparisKalemleri.SiparisId
+        WHERE KargoTakipKodu = ?
+    """,
+        (id),
+    )
+    rows = cursor.fetchall()
+    result = [
+        {
+            "UrunAdi": row.UrunAdi,
+            "Miktar": row.Miktar,
         }
         for row in rows
     ]
