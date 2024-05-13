@@ -373,7 +373,7 @@ ORDER BY
 
 
 # Kargo rakip numarasına göre siparis kalemlerini getirme
-@app.route("/flask/kargo_rakip_numarasina_gore_siparis_kalemleri/:id", methods=["GET"])
+@app.route("/flask/siparis_kalemleri/:id", methods=["GET"])
 @cross_origin()
 def kargo_rakip_numarasina_gore_siparis_kalemleri(id):
     cursor = conn.cursor()
