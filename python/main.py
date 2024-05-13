@@ -265,7 +265,14 @@ def dün_yapılan_satıslar():
     cursor.execute(
         """
 SELECT 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00') AS Saat,
+    CASE 
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
+    END AS SaatAraligi,
     SUM(ConnectSiparisKalemleri.Miktar) AS ToplamMiktar,
     SUM(ConnectSiparisKalemleri.Miktar * ConnectSiparisKalemleri.Fiyat) AS ToplamCiro
 FROM 
@@ -279,15 +286,22 @@ WHERE
     AND ConnectSiparis.SiparisTarihi < ?
     AND ConnectSiparisKalemleri.PlatformStatus NOT IN ('Cancelled', 'Returned', 'UnDelivered')
 GROUP BY 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00')
+    CASE 
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
+    END
 ORDER BY 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00');
+    SaatAraligi;
     """, (yesterday_start, yesterday_end)
     )
     rows = cursor.fetchall()
     result = [
         {
-            "Saat_Aralığı": row.Saat,
+            "Saat_Aralığı": row.SaatAraligi,
             "Toplam_Miktar": row.ToplamMiktar,
             "Toplam_Ciro": row.ToplamCiro,
         }
@@ -304,7 +318,14 @@ def bugün_yapılan_satıslar():
     cursor.execute(
         """
 SELECT 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00') AS Saat,
+    CASE 
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
+    END AS SaatAraligi,
     SUM(ConnectSiparisKalemleri.Miktar) AS ToplamMiktar,
     SUM(ConnectSiparisKalemleri.Miktar * ConnectSiparisKalemleri.Fiyat) AS ToplamCiro
 FROM 
@@ -315,18 +336,27 @@ INNER JOIN
     ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
 WHERE 
     ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
-    AND ConnectSiparis.SiparisTarihi < DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) + 1, 0)
-    AND ConnectSiparisKalemleri.PlatformStatus NOT IN ('Cancelled', 'Returned', 'UnDelivered')
+    AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) + 1, 0)
+    AND ConnectSiparisKalemleri.PlatformStatus != 'Cancelled' 
+    AND ConnectSiparisKalemleri.PlatformStatus != 'Returned' 
+    AND ConnectSiparisKalemleri.PlatformStatus != 'UnDelivered'
 GROUP BY 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00')
+    CASE 
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
+        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
+    END
 ORDER BY 
-    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00');
+    SaatAraligi;
     """
     )
     rows = cursor.fetchall()
     result = [
         {
-            "Saat": row.Saat,
+            "Saat": row.SaatAraligi,
             "Toplam_Miktar": row.ToplamMiktar,
             "Toplam_Ciro": row.ToplamCiro,
         }
