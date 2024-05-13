@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS, cross_origin
 import pyodbc
+from datetime import datetime, timedelta
 
 cors = CORS()
 app = Flask(__name__)
@@ -132,29 +133,28 @@ def gunluk_toplam_siparis_sayisi():
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
-
-# Endpoint 5: Günlük toplam kargolanan sipariş sayısı
-@app.route("/flask/toplam_kargolanmayı_bekleyen_siparis_sayisi", methods=["GET"])
-@cross_origin()
-def gunluk_toplam_kargolanan_siparis_sayisi():
+# Endpoint 4: Günlük toplam sipariş sayısı
+@app.route("/flask/dun_toplam_siparis_sayisi", methods=["GET"])
+def dun_toplam_siparis_sayisi():
     cursor = conn.cursor()
     cursor.execute(
         """
         SELECT COUNT(ConnectSiparis.Id) as TOTAL
         FROM ConnectSiparis
         INNER JOIN ConnectSiparisEk ON ConnectSiparisEk.SiparisId = ConnectSiparis.Id
-        WHERE ConnectSiparisEk.PlatformDurum = 'Created' OR ConnectSiparisEk.PlatformDurum = 'ReadyToShip' OR ConnectSiparisEk.PlatformDurum = 'Picking';
-        """
+        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE())-1, 0)
+        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
+        AND ConnectSiparisEk.PlatformDurum != 'Cancelled' AND PlatformDurum != 'Returned' AND PlatformDurum != 'UnDelivered';
+    """
     )
     row = cursor.fetchone()
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
-
 # Endpoint 6: Haftalık toplam satılan ürün sayısı
-@app.route("/flask/haftalik_toplam_satis_sayisi", methods=["GET"])
+@app.route("/flask/dun_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
-def haftalik_toplam_satis_sayisi():
+def dun_toplam_satis_sayisi():
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -162,8 +162,8 @@ def haftalik_toplam_satis_sayisi():
         FROM ConnectSiparisEk
         INNER JOIN ConnectSiparisKalemleri ON ConnectSiparisKalemleri.SiparisId = ConnectSiparisEk.SiparisId
         INNER JOIN ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
-        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) - 6, 0)
-        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) + 1, 0)
+        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) - 1, 0)
+        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
         AND ConnectSiparisKalemleri.PlatformStatus != 'Cancelled' AND PlatformDurum != 'Returned' AND PlatformDurum != 'UnDelivered';
     """
     )
@@ -234,23 +234,38 @@ def gunluk_toplam_ciro():
     result = {"TOTAL": row.TOTAL}
     return jsonify(result)
 
+# Endpoint 10: Günlük toplam ciro
+@app.route("/flask/dun_toplam_ciro", methods=["GET"])
+@cross_origin()
+def dun_toplam_ciro():
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT SUM(ConnectSiparisKalemleri.Miktar * ConnectSiparisKalemleri.Fiyat) as TOTAL
+        FROM ConnectSiparisEk
+        INNER JOIN ConnectSiparisKalemleri ON ConnectSiparisKalemleri.SiparisId = ConnectSiparisEk.SiparisId
+        INNER JOIN ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
+        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) - 1, 0)
+        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
+        AND ConnectSiparisKalemleri.PlatformStatus NOT IN ('Cancelled', 'Returned', 'UnDelivered')
+        """
+    )
+    row = cursor.fetchone()
+    result = {"TOTAL": row.TOTAL}
+    return jsonify(result)
 
-# Endpoint 10: DÜn yapılan satışlar
-@app.route("/flask/dün-yapılan-satışlar-grafiği", methods=["GET"])
+# Endpoint 11: Dün yapılan satışlar
+@app.route("/flask/dun-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def dün_yapılan_satıslar():
+    yesterday_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+    yesterday_end = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
     cursor = conn.cursor()
     cursor.execute(
         """
 SELECT 
-    CASE 
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
-    END AS SaatAraligi,
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00') AS Saat,
     SUM(ConnectSiparisKalemleri.Miktar) AS ToplamMiktar,
     SUM(ConnectSiparisKalemleri.Miktar * ConnectSiparisKalemleri.Fiyat) AS ToplamCiro
 FROM 
@@ -260,28 +275,19 @@ INNER JOIN
 INNER JOIN 
     ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
 WHERE 
-    ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE())-1, 0)
-    AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
-    AND ConnectSiparisKalemleri.PlatformStatus != 'Cancelled' 
-    AND ConnectSiparisKalemleri.PlatformStatus != 'Returned' 
-    AND ConnectSiparisKalemleri.PlatformStatus != 'UnDelivered'
+    ConnectSiparis.SiparisTarihi >= ?
+    AND ConnectSiparis.SiparisTarihi < ?
+    AND ConnectSiparisKalemleri.PlatformStatus NOT IN ('Cancelled', 'Returned', 'UnDelivered')
 GROUP BY 
-    CASE 
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
-    END
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00')
 ORDER BY 
-    SaatAraligi;
-    """
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00');
+    """, (yesterday_start, yesterday_end)
     )
     rows = cursor.fetchall()
     result = [
         {
-            "Saat_Aralığı": row.SaatAraligi,
+            "Saat_Aralığı": row.Saat,
             "Toplam_Miktar": row.ToplamMiktar,
             "Toplam_Ciro": row.ToplamCiro,
         }
@@ -290,7 +296,7 @@ ORDER BY
     return jsonify(result)
 
 
-# Endpoint 11: bugÜn yapılan satışlar
+# Endpoint 12: bugÜn yapılan satışlar
 @app.route("/flask/bugün-yapılan-satışlar-grafiği", methods=["GET"])
 @cross_origin()
 def bugün_yapılan_satıslar():
@@ -298,14 +304,7 @@ def bugün_yapılan_satıslar():
     cursor.execute(
         """
 SELECT 
-    CASE 
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
-    END AS SaatAraligi,
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00') AS Saat,
     SUM(ConnectSiparisKalemleri.Miktar) AS ToplamMiktar,
     SUM(ConnectSiparisKalemleri.Miktar * ConnectSiparisKalemleri.Fiyat) AS ToplamCiro
 FROM 
@@ -316,27 +315,18 @@ INNER JOIN
     ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
 WHERE 
     ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
-    AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) + 1, 0)
-    AND ConnectSiparisKalemleri.PlatformStatus != 'Cancelled' 
-    AND ConnectSiparisKalemleri.PlatformStatus != 'Returned' 
-    AND ConnectSiparisKalemleri.PlatformStatus != 'UnDelivered'
+    AND ConnectSiparis.SiparisTarihi < DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) + 1, 0)
+    AND ConnectSiparisKalemleri.PlatformStatus NOT IN ('Cancelled', 'Returned', 'UnDelivered')
 GROUP BY 
-    CASE 
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 0 AND 3 THEN '00.00-04.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 4 AND 7 THEN '04.00-08.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 8 AND 11 THEN '08.00-12.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 12 AND 15 THEN '12.00-16.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 16 AND 19 THEN '16.00-20.00'
-        WHEN DATEPART(HOUR, ConnectSiparis.SiparisTarihi) BETWEEN 20 AND 23 THEN '20.00-00.00'
-    END
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00')
 ORDER BY 
-    SaatAraligi;
+    FORMAT(ConnectSiparis.SiparisTarihi, 'yyyy-MM-dd HH:00');
     """
     )
     rows = cursor.fetchall()
     result = [
         {
-            "Saat_Aralığı": row.SaatAraligi,
+            "Saat": row.Saat,
             "Toplam_Miktar": row.ToplamMiktar,
             "Toplam_Ciro": row.ToplamCiro,
         }
