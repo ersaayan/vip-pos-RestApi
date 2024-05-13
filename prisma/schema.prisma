@@ -13,12 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  name               String?
+  role               Role                 @default(USER)
+  password           String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  OrderVerifications OrderVerifications[]
 }
 
 model Product {
@@ -55,4 +63,13 @@ model StockKartYedek {
   Barcode             String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model OrderVerifications {
+  id             String   @id @default(cuid())
+  kargoTakipNo   String
+  confiredByUser String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  User           User     @relation(fields: [confiredByUser], references: [id])
 }
