@@ -15,10 +15,12 @@ export class UsersService {
       createUserDto.password,
       roundsOfHashing,
     );
-    return this.prisma.user.create({
+    await this.prisma.user.create({
       data: {
-        ...createUserDto,
+        name: createUserDto.name,
+        email: createUserDto.email,
         password: hashedPassword,
+        role: createUserDto.role,
       },
     });
   }

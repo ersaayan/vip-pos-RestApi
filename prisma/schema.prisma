@@ -19,15 +19,16 @@ enum Role {
 }
 
 model User {
-  id               String             @id @default(cuid())
-  email            String             @unique
-  name             String?
-  password         String
-  role             Role               @default(USER)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  updatedBy        StockCart[]
-  StockCartHistory StockCartHistory[]
+  id                String              @id @default(cuid())
+  email             String              @unique
+  name              String?
+  password          String
+  role              Role
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  updatedBy         StockCart[]
+  StockCartHistory  StockCartHistory[]
+  OrderVerification OrderVerification[]
 }
 
 model Phone {
@@ -78,4 +79,13 @@ model StockCartHistory {
   updatedAt          DateTime @updatedAt
   Phone              Phone    @relation(fields: [phoneId], references: [id])
   updatedByUser      User?    @relation(fields: [updatedBy], references: [id])
+}
+
+model OrderVerification {
+  id           String   @id @default(cuid())
+  kargoTakipNo String
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  User         User     @relation(fields: [userId], references: [id])
 }
