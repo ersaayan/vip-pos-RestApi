@@ -16,15 +16,28 @@ export class StockCartsService {
     return this.prisma.stockCart.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} stockCart`;
+  findOne(id: string) {
+    return this.prisma.stockCart.findUnique({
+      where: {
+        id: id,
+      },
+    });
   }
 
-  update(id: number, updateStockCartDto: UpdateStockCartDto) {
-    return `This action updates a #${id} stockCart`;
+  async update(id: string, updateStockCartDto: UpdateStockCartDto) {
+    return await this.prisma.stockCart.update({
+      where: {
+        id: id,
+      },
+      data: updateStockCartDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} stockCart`;
+  remove(id: string) {
+    return this.prisma.stockCart.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }
