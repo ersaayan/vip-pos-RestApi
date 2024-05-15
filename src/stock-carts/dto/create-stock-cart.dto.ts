@@ -2,12 +2,10 @@ import { IsString, IsArray, IsOptional } from 'class-validator';
 
 export class CreateStockCartDto {
   @IsArray()
-  @IsString({ each: true })
-  phoneIds: string[];
+  phoneIds: string;
 
   @IsArray()
-  @IsString({ each: true })
-  caseModelVariations: string[];
+  caseModelVariations: string;
 
   @IsString()
   @IsOptional()
@@ -26,10 +24,10 @@ export class CreateStockCartDto {
   barcode: string;
 
   @IsOptional()
-  cost: number;
+  cost: string;
 
   @IsOptional()
-  quantity: number;
+  quantity: string;
 
   @IsOptional()
   caseImage: any; // Multipart form data için

@@ -3,16 +3,14 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { StockCartsService } from './stock-carts.service';
-import { CreateStockCartDto } from './dto/create-stock-cart.dto';
-import { UpdateStockCartDto } from './dto/update-stock-cart.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateStockCartDto } from './dto/create-stock-cart.dto';
 
 @Controller('stock-carts')
 export class StockCartsController {
@@ -21,10 +19,32 @@ export class StockCartsController {
   @Post()
   @UseInterceptors(FileInterceptor('caseImage'))
   async create(
-    @Body() createStockCartDto: CreateStockCartDto,
+    @Body() body: any,
     @UploadedFile() file: Express.Multer.File,
-  ) {
-    await this.stockCartsService.create(createStockCartDto, file);
+  ): Promise<any> {
+    const {
+      phoneIds,
+      caseModelVariations,
+      caseBrand,
+      title,
+      description,
+      barcode,
+      cost,
+      quantity,
+    } = body;
+    const data: CreateStockCartDto = {
+      phoneIds: phoneIds,
+      caseModelVariations,
+      caseBrand,
+      caseImage: file.filename,
+      title,
+      description,
+      barcode,
+      cost,
+      quantity,
+    };
+    const stockCart = await this.stockCartsService.create(data, file);
+    return stockCart;
   }
 
   @Get()
@@ -35,14 +55,6 @@ export class StockCartsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.stockCartsService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateStockCartDto: UpdateStockCartDto,
-  ) {
-    return this.stockCartsService.update(id, updateStockCartDto);
   }
 
   @Delete(':id')

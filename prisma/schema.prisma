@@ -64,7 +64,6 @@ model StockCart {
 
 model StockCartHistory {
   id                 String   @id @default(cuid())
-  stockCartId        String
   phoneId            String
   caseBrand          String
   caseModelVariation String

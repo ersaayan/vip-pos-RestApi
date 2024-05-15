@@ -5,40 +5,69 @@ import { UpdateStockCartDto } from './dto/update-stock-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StockCartsService {
   constructor(private prisma: PrismaService) {}
 
   async create(
-    createStockCartDto: CreateStockCartDto,
+    data: CreateStockCartDto,
     file: Express.Multer.File,
-  ) {
-    const { phoneIds, caseModelVariations, ...rest } = createStockCartDto;
-    const imagePath = file ? `/public/img/${file.filename}` : null;
-
-    for (const phoneId of phoneIds) {
-      for (const caseModelVariation of caseModelVariations) {
-        await this.prisma.stockCart.create({
-          data: {
-            phoneId,
-            caseModelVariation,
-            caseImage: imagePath,
-            ...rest,
+  ): Promise<any> {
+    const {
+      caseBrand,
+      caseModelVariations,
+      caseImage,
+      title,
+      description,
+      barcode,
+      cost,
+      quantity,
+    } = data;
+    const caseImageUrl = await this.saveImage(file);
+    const stockCarts = [];
+    await this.prisma.stockCartHistory.deleteMany({});
+    const phoneIdsArray: string[] = JSON.parse(data.phoneIds);
+    const caseModelArray: string[] = JSON.parse(data.caseModelVariations);
+    for (const phoneId of phoneIdsArray) {
+      for (const caseModel of caseModelArray) {
+        const stockCart: Prisma.StockCartHistoryCreateInput = {
+          Phone: {
+            connect: {
+              id: phoneId,
+            },
           },
+          caseBrand,
+          caseModelVariation: caseModel,
+          caseImage: caseImageUrl,
+          title,
+          description,
+          barcode,
+          cost: parseFloat(cost),
+          quantity: parseInt(quantity),
+        };
+        const createdStockCart = await this.prisma.stockCartHistory.create({
+          data: stockCart,
         });
+        stockCarts.push(createdStockCart);
       }
     }
+    return stockCarts;
   }
 
-  async saveImage(file: Express.Multer.File): Promise<string> {
-    const uploadPath = path.join(__dirname, '..', 'public', 'img');
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    const filePath = path.join(uploadPath, file.filename);
-    fs.writeFileSync(filePath, file.buffer);
-    return `/public/img/${file.filename}`;
+  private saveImage(file: Express.Multer.File): Promise<string> {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const filePath = path.resolve(__dirname, '..', '..', 'public', fileName);
+    const fileUrl = `/uploads/${fileName}`;
+
+    return new Promise((resolve, reject) => {
+      const fileStream = fs.createWriteStream(filePath);
+      fileStream.on('finish', () => resolve(fileUrl));
+      fileStream.on('error', reject);
+      fileStream.write(file.buffer);
+      fileStream.end();
+    });
   }
 
   findAll() {
@@ -53,20 +82,24 @@ export class StockCartsService {
     });
   }
 
-  async update(id: string, updateStockCartDto: UpdateStockCartDto) {
-    return await this.prisma.stockCart.update({
-      where: {
-        id: id,
-      },
-      data: updateStockCartDto,
-    });
-  }
-
   remove(id: string) {
     return this.prisma.stockCart.delete({
       where: {
         id: id,
       },
     });
+  }
+
+  private toArray(input: string[] | string): string[] {
+    if (Array.isArray(input)) {
+      return input;
+    }
+    if (typeof input === 'string') {
+      return input.includes(',') ? input.split(',') : [input];
+    }
+    if (typeof input === 'object' && 'connect' in input) {
+      console.log('connect');
+    }
+    return [];
   }
 }
