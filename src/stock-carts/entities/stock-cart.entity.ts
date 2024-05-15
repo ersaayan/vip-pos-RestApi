@@ -1,6 +1,9 @@
 import { StockCart } from '@prisma/client';
 
 export class StockCartEntity implements StockCart {
+  constructor(partial: Partial<StockCartEntity>) {
+    Object.assign(this, partial);
+  }
   id: string;
   phoneId: string;
   caseBrand: string;

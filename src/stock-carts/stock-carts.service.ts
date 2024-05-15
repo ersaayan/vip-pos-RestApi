@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateStockCartDto } from './dto/create-stock-cart.dto';
 import { UpdateStockCartDto } from './dto/update-stock-cart.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class StockCartsService {
-  create(createStockCartDto: CreateStockCartDto) {
-    return 'This action adds a new stockCart';
+  constructor(private prisma: PrismaService) {}
+  async create(createStockCartDto: CreateStockCartDto) {
+    return await this.prisma.stockCart.create({
+      data: createStockCartDto,
+    });
   }
 
   findAll() {
-    return `This action returns all stockCarts`;
+    return this.prisma.stockCart.findMany();
   }
 
   findOne(id: number) {
