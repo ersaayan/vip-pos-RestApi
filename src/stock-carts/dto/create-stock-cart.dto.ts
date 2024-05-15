@@ -1,15 +1,36 @@
+import { IsString, IsArray, IsOptional } from 'class-validator';
+
 export class CreateStockCartDto {
-  id: string;
-  phoneId: string;
+  @IsArray()
+  @IsString({ each: true })
+  phoneIds: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  caseModelVariations: string[];
+
+  @IsString()
+  @IsOptional()
   caseBrand: string;
-  caseModelVariation: string;
-  caseImage: string;
+
+  @IsString()
+  @IsOptional()
   title: string;
+
+  @IsString()
+  @IsOptional()
   description: string;
+
+  @IsString()
+  @IsOptional()
   barcode: string;
+
+  @IsOptional()
   cost: number;
+
+  @IsOptional()
   quantity: number;
-  updatedBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+
+  @IsOptional()
+  caseImage: any; // Multipart form data için
 }
