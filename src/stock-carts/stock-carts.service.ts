@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { CreateStockCartDto } from './dto/create-stock-cart.dto';
-import { UpdateStockCartDto } from './dto/update-stock-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -16,16 +14,7 @@ export class StockCartsService {
     data: CreateStockCartDto,
     file: Express.Multer.File,
   ): Promise<any> {
-    const {
-      caseBrand,
-      caseModelVariations,
-      caseImage,
-      title,
-      description,
-      barcode,
-      cost,
-      quantity,
-    } = data;
+    const { caseBrand, title, description, barcode, cost, quantity } = data;
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
     this.deleteAllStockCartHistory();
@@ -185,7 +174,301 @@ export class StockCartsService {
       __dirname,
       '../..',
       'templates',
-      'StokListesi.xlsx',
+      'Myor.xlsx',
     );
+    const workspace = await workbook.xlsx.readFile(templateFilePath);
+    const worksheet = workspace.getWorksheet(1);
+
+    for (const stockCart of stockCarts) {
+      const phone = await this.prisma.phone.findUnique({
+        where: {
+          id: stockCart.phoneId,
+        },
+      });
+
+      const row = worksheet.addRow([
+        'Stok',
+        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        `${phone.name} ${stockCart.caseBrand} ${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        `${stockCart.title}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        stockCart.barcode,
+        '',
+        '',
+        stockCart.cost,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ]);
+
+      row.font = { bold: false };
+    }
+    // Dosyayı kaydet
+    const filePath = path.join(
+      __dirname,
+      '../..',
+      'exports',
+      'StokListesi-myor.xlsx',
+    );
+    await workspace.xlsx.writeFile(filePath);
+
+    return filePath;
+  }
+
+  async exportStockCartHistoriesToExcelForMyor() {
+    const stockCarts = await this.prisma.stockCartHistory.findMany();
+
+    const workbook = new excel.Workbook();
+    const templateFilePath = path.join(
+      __dirname,
+      '../..',
+      'templates',
+      'Myor.xlsx',
+    );
+    const workspace = await workbook.xlsx.readFile(templateFilePath);
+    const worksheet = workspace.getWorksheet(1);
+
+    for (const stockCart of stockCarts) {
+      const phone = await this.prisma.phone.findUnique({
+        where: {
+          id: stockCart.phoneId,
+        },
+      });
+
+      const row = worksheet.addRow([
+        'Stok',
+        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        `${phone.name} ${stockCart.caseBrand} ${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        `${stockCart.title}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        stockCart.barcode,
+        '',
+        '',
+        stockCart.cost,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ]);
+
+      row.font = { bold: false };
+    }
+    // Dosyayı kaydet
+    const filePath = path.join(
+      __dirname,
+      '../..',
+      'exports',
+      'StokListesi-myor.xlsx',
+    );
+    await workspace.xlsx.writeFile(filePath);
+
+    return filePath;
+  }
+
+  async exportStockCartsToExcelForIkas() {
+    const stockCarts = await this.prisma.stockCart.findMany();
+
+    const workbook = new excel.Workbook();
+    const templateFilePath = path.join(
+      __dirname,
+      '../..',
+      'templates',
+      'Ikas.xlsx',
+    );
+    const workspace = await workbook.xlsx.readFile(templateFilePath);
+    const worksheet = workspace.getWorksheet(1);
+
+    for (const stockCart of stockCarts) {
+      const phone = await this.prisma.phone.findUnique({
+        where: {
+          id: stockCart.phoneId,
+        },
+      });
+
+      const row = worksheet.addRow([
+        `${stockCart.caseBrand}-${phone.groupCode.replace(/\s/g, '')}`,
+        '',
+        `${phone.brand} ${phone.groupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${stockCart.description}`,
+        0.01,
+        0.01,
+        0.01,
+        `${stockCart.barcode}`,
+        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        'YANLIŞ',
+        'Vip Case',
+        'Telefon Kılıf ve Aksesuarları>Telefon Kılıfları',
+        ``,
+        `${stockCart.caseImage}`,
+        '',
+        '',
+        '',
+        `${stockCart.quantity}`,
+        'Renk',
+        `${stockCart.caseModelVariation.replace(/\s/g, '')}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        'VISIBLE',
+        'PASSIVE',
+        '',
+        '',
+        '',
+        '',
+      ]);
+
+      row.font = { bold: false };
+    }
+    const filePath = path.join(
+      __dirname,
+      '../..',
+      'exports',
+      'StokListesi-ikas.xlsx',
+    );
+    await workspace.xlsx.writeFile(filePath);
+
+    return filePath;
+  }
+
+  async exportStockCartHistoriesToExcelForIkas() {
+    const stockCarts = await this.prisma.stockCartHistory.findMany();
+
+    const workbook = new excel.Workbook();
+    const templateFilePath = path.join(
+      __dirname,
+      '../..',
+      'templates',
+      'Ikas.xlsx',
+    );
+    const workspace = await workbook.xlsx.readFile(templateFilePath);
+    const worksheet = workspace.getWorksheet(1);
+
+    for (const stockCart of stockCarts) {
+      const phone = await this.prisma.phone.findUnique({
+        where: {
+          id: stockCart.phoneId,
+        },
+      });
+
+      const row = worksheet.addRow([
+        `${stockCart.caseBrand}-${phone.groupCode.replace(/\s/g, '')}`,
+        '',
+        `${phone.brand} ${phone.groupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${stockCart.description}`,
+        0.01,
+        0.01,
+        0.01,
+        `${stockCart.barcode}`,
+        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+          /\s/g,
+          '',
+        )}`,
+        'YANLIŞ',
+        'Vip Case',
+        'Telefon Kılıf ve Aksesuarları>Telefon Kılıfları',
+        ``,
+        `${stockCart.caseImage}`,
+        '',
+        '',
+        '',
+        `${stockCart.quantity}`,
+        'Renk',
+        `${stockCart.caseModelVariation.replace(/\s/g, '')}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        'VISIBLE',
+        'PASSIVE',
+        '',
+        '',
+        '',
+        '',
+      ]);
+
+      row.font = { bold: false };
+    }
+    const filePath = path.join(
+      __dirname,
+      '../..',
+      'exports',
+      'StokListesi-ikas.xlsx',
+    );
+    await workspace.xlsx.writeFile(filePath);
+
+    return filePath;
   }
 }
