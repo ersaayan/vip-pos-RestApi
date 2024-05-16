@@ -196,6 +196,7 @@ export class StocksService {
     });
     return Promise.all(newStockKarts);
   }
+
   async exportToExcelForMyor() {
     // Veritabanından gerekli verileri al
     const stockKarts = await this.prisma.stockKart.findMany({});
@@ -281,7 +282,7 @@ export class StocksService {
       __dirname,
       '../..',
       'templates',
-      'IkasUrunEkleme.xlsx',
+      'Ikas.xlsx',
     );
     const workbook = await workspace.xlsx.readFile(tempfilePath);
     const worksheet = await workbook.getWorksheet(1);
@@ -436,7 +437,7 @@ export class StocksService {
       __dirname,
       '../..',
       'templates',
-      'IkasUrunEkleme.xlsx',
+      'Ikas.xlsx',
     );
     const workbook = await workspace.xlsx.readFile(tempfilePath);
     const worksheet = await workbook.getWorksheet(1);
