@@ -12,13 +12,13 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from '@prisma/client';
 
-@UseGuards(JwtAuthGuard)
 @Controller('order-verification')
 export class OrderVerificationController {
   constructor(
     private readonly orderVerificationService: OrderVerificationService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@GetUser() user: User, @Body() data: any) {
     return this.orderVerificationService.create(user.id, data);
