@@ -3,14 +3,16 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderVerificationService } from './order-verification.service';
-import { CreateOrderVerificationDto } from './dto/create-order-verification.dto';
-import { UpdateOrderVerificationDto } from './dto/update-order-verification.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { GetUser } from 'src/auth/decorator';
+import { User } from '@prisma/client';
 
+@UseGuards(JwtAuthGuard)
 @Controller('order-verification')
 export class OrderVerificationController {
   constructor(
@@ -18,8 +20,8 @@ export class OrderVerificationController {
   ) {}
 
   @Post()
-  create(@Body() createOrderVerificationDto: CreateOrderVerificationDto) {
-    return this.orderVerificationService.create(createOrderVerificationDto);
+  create(@GetUser() user: User, @Body() data: any) {
+    return this.orderVerificationService.create(user.id, data);
   }
 
   @Get()
@@ -30,14 +32,6 @@ export class OrderVerificationController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.orderVerificationService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateOrderVerificationDto: UpdateOrderVerificationDto,
-  ) {
-    return this.orderVerificationService.update(id, updateOrderVerificationDto);
   }
 
   @Delete(':id')
