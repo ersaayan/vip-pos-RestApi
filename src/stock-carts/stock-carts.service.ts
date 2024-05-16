@@ -120,11 +120,11 @@ export class StockCartsService {
     return stockCartsWithCustomOutput;
   }
 
-  getAllStockCart() {
+  async getAllStockCart() {
     return this.prisma.stockCart.findMany();
   }
 
-  getAllStockCartHistory() {
+  async getAllStockCartHistory() {
     return this.prisma.stockCartHistory.findMany();
   }
 
@@ -164,6 +164,15 @@ export class StockCartsService {
       });
     });
     return Promise.all(stockCarts);
+  }
+
+  async updateStockCart(id: string, data: Prisma.StockCartUpdateInput) {
+    return this.prisma.stockCart.update({
+      where: {
+        id,
+      },
+      data,
+    });
   }
 
   async exportStockCartsToExcelForMyor() {

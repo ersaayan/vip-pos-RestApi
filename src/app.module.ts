@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { PhonesModule } from './phones/phones.module';
 import { StockCartsModule } from './stock-carts/stock-carts.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { OrderVerificationModule } from './order-verification/order-verification.module';
 @Module({
   imports: [
     MulterModule.register({
@@ -15,6 +16,7 @@ import { MulterModule } from '@nestjs/platform-express';
     AuthModule,
     PhonesModule,
     StockCartsModule,
+    OrderVerificationModule,
   ],
   controllers: [],
   providers: [],
