@@ -1,1 +1,5 @@
-export class CreateOrderDto {}
+export class CreateOrderDto {
+  stockCartId: string;
+  orderCost: number;
+  userId: string;
+}
