@@ -16,6 +16,7 @@ datasource db {
 enum Role {
   ADMIN
   USER
+  MANUFACTURER
 }
 
 model User {
@@ -29,6 +30,7 @@ model User {
   updatedBy         StockCart[]
   StockCartHistory  StockCartHistory[]
   OrderVerification OrderVerification[]
+  Order             Order[]
 }
 
 model Phone {
@@ -60,6 +62,7 @@ model StockCart {
   updatedAt          DateTime @updatedAt
   Phone              Phone    @relation(fields: [phoneId], references: [id])
   updatedByUser      User?    @relation(fields: [updatedBy], references: [id])
+  Order              Order[]
 }
 
 model StockCartHistory {
@@ -87,4 +90,15 @@ model OrderVerification {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   User         User     @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id          String    @id @default(cuid())
+  stockCartId String
+  orderCost   Float
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  StockCart   StockCart @relation(fields: [stockCartId], references: [id])
+  User        User      @relation(fields: [userId], references: [id])
 }

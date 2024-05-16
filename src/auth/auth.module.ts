@@ -5,6 +5,8 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RolesGuard } from './roles.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
 
@@ -19,6 +21,6 @@ const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, { provide: APP_GUARD, useClass: RolesGuard }],
 })
 export class AuthModule {}
