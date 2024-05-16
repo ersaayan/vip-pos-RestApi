@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Prisma } from '@prisma/client';
+import * as excel from 'exceljs';
 
 @Injectable()
 export class StockCartsService {
@@ -27,7 +28,7 @@ export class StockCartsService {
     } = data;
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
-    await this.prisma.stockCartHistory.deleteMany({});
+    this.deleteAllStockCartHistory();
     const phoneIdsArray: string[] = JSON.parse(data.phoneIds);
     const caseModelArray: string[] = JSON.parse(data.caseModelVariations);
     for (const phoneId of phoneIdsArray) {
@@ -70,36 +71,121 @@ export class StockCartsService {
     });
   }
 
-  findAll() {
+  async deleteAllStockCartHistory() {
+    return this.prisma.stockCartHistory.deleteMany({});
+  }
+
+  async deleteAllStockCart() {
+    return this.prisma.stockCart.deleteMany({});
+  }
+
+  async getAllStockCartHistoryWithCustomOutput() {
+    const stockCartHistories = await this.prisma.stockCartHistory.findMany();
+    const stockCartHistoriesWithCustomOutput = stockCartHistories.map(
+      async (stockCartHistory) => {
+        const phone = await this.prisma.phone.findUnique({
+          where: {
+            id: stockCartHistory.phoneId,
+          },
+        });
+        return {
+          id: stockCartHistory.id,
+          caseImage: stockCartHistory.caseImage,
+          stockCode: `${stockCartHistory.caseBrand}\\${phone.stockCode}/${stockCartHistory.caseModelVariation}`,
+          myorStockName: `${phone.brand} ${phone.model} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          title: stockCartHistory.title,
+          description: stockCartHistory.description,
+          cost: stockCartHistory.cost,
+          quantity: stockCartHistory.quantity,
+          barcode: stockCartHistory.barcode,
+        };
+      },
+    );
+    return stockCartHistoriesWithCustomOutput;
+  }
+
+  async getAllStockCartWithCustomOutput() {
+    const stockCarts = await this.prisma.stockCart.findMany();
+    const stockCartsWithCustomOutput = stockCarts.map(
+      async (stockCartHistory) => {
+        const phone = await this.prisma.phone.findUnique({
+          where: {
+            id: stockCartHistory.phoneId,
+          },
+        });
+        return {
+          id: stockCartHistory.id,
+          caseImage: stockCartHistory.caseImage,
+          stockCode: `${stockCartHistory.caseBrand}\\${phone.stockCode}/${stockCartHistory.caseModelVariation}`,
+          myorStockName: `${phone.brand} ${phone.model} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          title: stockCartHistory.title,
+          description: stockCartHistory.description,
+          cost: stockCartHistory.cost,
+          quantity: stockCartHistory.quantity,
+          barcode: stockCartHistory.barcode,
+        };
+      },
+    );
+    return stockCartsWithCustomOutput;
+  }
+
+  getAllStockCart() {
     return this.prisma.stockCart.findMany();
   }
 
-  findOne(id: string) {
-    return this.prisma.stockCart.findUnique({
+  getAllStockCartHistory() {
+    return this.prisma.stockCartHistory.findMany();
+  }
+
+  async deleteStockCartHistoriesIdsNotSent(ids: string[]) {
+    const stockCarts = await this.prisma.stockCartHistory.findMany();
+    const stockCartIds = stockCarts.map((stockCart) => stockCart.id);
+    const stockCartsIdsNotSent = stockCartIds.filter((id) => !ids.includes(id));
+    return this.prisma.stockCartHistory.deleteMany({
       where: {
-        id: id,
+        id: {
+          in: stockCartsIdsNotSent,
+        },
       },
     });
   }
 
-  remove(id: string) {
-    return this.prisma.stockCart.delete({
-      where: {
-        id: id,
-      },
+  async transferStockCartHistoriesToStockCart(): Promise<any> {
+    const stockCartHistories = await this.prisma.stockCartHistory.findMany();
+    const stockCarts = stockCartHistories.map(async (stockCartHistory) => {
+      const newData: Prisma.StockCartCreateInput = {
+        Phone: {
+          connect: {
+            id: stockCartHistory.phoneId,
+          },
+        },
+        caseBrand: stockCartHistory.caseBrand,
+        caseModelVariation: stockCartHistory.caseModelVariation,
+        caseImage: stockCartHistory.caseImage,
+        title: stockCartHistory.title,
+        description: stockCartHistory.description,
+        barcode: stockCartHistory.barcode,
+        cost: stockCartHistory.cost,
+        quantity: stockCartHistory.quantity,
+      };
+      await this.prisma.stockCart.create({
+        data: newData,
+      });
     });
+    return Promise.all(stockCarts);
   }
 
-  private toArray(input: string[] | string): string[] {
-    if (Array.isArray(input)) {
-      return input;
-    }
-    if (typeof input === 'string') {
-      return input.includes(',') ? input.split(',') : [input];
-    }
-    if (typeof input === 'object' && 'connect' in input) {
-      console.log('connect');
-    }
-    return [];
+  async exportStockCartsToExcelForMyor() {
+    const stockCarts = await this.prisma.stockCart.findMany();
+
+    const workbook = new excel.Workbook();
+    const templateFilePath = path.join(
+      __dirname,
+      '../..',
+      'templates',
+      'StokListesi.xlsx',
+    );
   }
 }

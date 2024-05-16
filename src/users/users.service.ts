@@ -15,7 +15,7 @@ export class UsersService {
       createUserDto.password,
       roundsOfHashing,
     );
-    await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         name: createUserDto.name,
         email: createUserDto.email,
