@@ -20,17 +20,17 @@ enum Role {
 }
 
 model User {
-  id                String              @id @default(cuid())
-  email             String              @unique
-  name              String?
-  password          String
-  role              Role
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  updatedBy         StockCart[]
-  StockCartHistory  StockCartHistory[]
-  OrderVerification OrderVerification[]
-  Order             Order[]
+  id                        String                      @id @default(cuid())
+  email                     String                      @unique
+  name                      String?
+  password                  String
+  role                      Role
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  StockCart                 StockCart[]
+  StockCartHistory          StockCartHistory[]
+  PLatformOrderVerification PLatformOrderVerification[]
+  Order                     Order[]
 }
 
 model Phone {
@@ -47,7 +47,7 @@ model Phone {
 }
 
 model StockCart {
-  id                 String   @id @default(cuid())
+  id                 String        @id @default(cuid())
   phoneId            String
   caseBrand          String
   caseModelVariation String
@@ -58,11 +58,11 @@ model StockCart {
   cost               Float?
   quantity           Int?
   updatedBy          String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  Phone              Phone    @relation(fields: [phoneId], references: [id])
-  updatedByUser      User?    @relation(fields: [updatedBy], references: [id])
-  Order              Order[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  Phone              Phone         @relation(fields: [phoneId], references: [id])
+  User               User?         @relation(fields: [updatedBy], references: [id])
+  OrderDetail        OrderDetail[]
 }
 
 model StockCartHistory {
@@ -83,7 +83,7 @@ model StockCartHistory {
   updatedByUser      User?    @relation(fields: [updatedBy], references: [id])
 }
 
-model OrderVerification {
+model PLatformOrderVerification {
   id           String   @id @default(cuid())
   kargoTakipNo String
   userId       String
@@ -93,12 +93,34 @@ model OrderVerification {
 }
 
 model Order {
-  id          String    @id @default(cuid())
-  stockCartId String
+  id          String        @id @default(cuid())
   orderCost   Float
   userId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  StockCart   StockCart @relation(fields: [stockCartId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
+  status      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  User        User          @relation(fields: [userId], references: [id])
+  OrderFiles  OrderFiles[]
+  OrderDetail OrderDetail[]
+}
+
+model OrderDetail {
+  id        String    @id @default(cuid())
+  orderId   String
+  stockCart String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Order     Order     @relation(fields: [orderId], references: [id])
+  StockCart StockCart @relation(fields: [stockCart], references: [id])
+}
+
+model OrderFiles {
+  id        String   @id @default(cuid())
+  orderId   String
+  fileName  String
+  fileType  String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order    @relation(fields: [orderId], references: [id])
 }

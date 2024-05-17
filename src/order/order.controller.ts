@@ -7,12 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/auth/decorator';
 import { Role } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('order')
 export class OrderController {
@@ -25,24 +26,39 @@ export class OrderController {
     return this.orderService.create(body);
   }
 
-  @Get()
-  findAll() {
-    return this.orderService.findAll();
+  @Post('upload-file')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@Body() body: any, file: Express.Multer.File) {
+    return this.orderService.uploadFile(file, body.orderId);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateOrderDto: any) {
+    return this.orderService.updateOrderStatus(id, updateOrderDto);
+  }
+
+  @Get('get-all-orders-without-details')
+  getAllOrdersWithoutDetails() {
+    return this.orderService.getAllOrdersWithoutDetails();
+  }
+
+  @Get('get-order-details-by-order-id/:id')
+  getOrderDetailsByOrderId(@Param('id') id: string) {
+    return this.orderService.getOrderDetailsByOrderId(id);
+  }
+
+  @Get('get-orders-by-user-id/:id')
+  getOrdersByUserId(@Param('id') id: string) {
+    return this.orderService.getOrdersByUserId(id);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
   }
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(id, updateOrderDto);
-  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.orderService.remove(id);
+    return this.orderService.removeOrderWithDetails(id);
   }
 }

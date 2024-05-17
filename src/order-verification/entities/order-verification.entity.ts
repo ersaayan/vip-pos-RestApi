@@ -1,6 +1,6 @@
-import { OrderVerification } from '@prisma/client';
+import { PLatformOrderVerification } from '@prisma/client';
 
-export class OrderVerificationEntity implements OrderVerification {
+export class OrderVerificationEntity implements PLatformOrderVerification {
   constructor(partial: Partial<OrderVerificationEntity>) {
     Object.assign(this, partial);
   }
