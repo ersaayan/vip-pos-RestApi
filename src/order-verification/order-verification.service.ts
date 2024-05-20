@@ -8,7 +8,7 @@ export class OrderVerificationService {
   constructor(private prisma: PrismaService) {}
 
   create(userId: string, bodyData: CreateOrderVerificationDto) {
-    const orderVerification: Prisma.PLatformOrderVerificationCreateInput = {
+    const orderVerification: Prisma.PlatformOrderVerificationCreateInput = {
       User: {
         connect: {
           id: userId,
@@ -16,23 +16,23 @@ export class OrderVerificationService {
       },
       kargoTakipNo: bodyData.kargoTakipNo,
     };
-    return this.prisma.pLatformOrderVerification.create({
+    return this.prisma.platformOrderVerification.create({
       data: orderVerification,
     });
   }
 
   findAll() {
-    return this.prisma.pLatformOrderVerification.findMany();
+    return this.prisma.platformOrderVerification.findMany();
   }
 
   findOne(id: string) {
-    return this.prisma.pLatformOrderVerification.findUnique({
+    return this.prisma.platformOrderVerification.findUnique({
       where: { id },
     });
   }
 
   remove(id: string) {
-    return this.prisma.pLatformOrderVerification.delete({
+    return this.prisma.platformOrderVerification.delete({
       where: { id },
     });
   }

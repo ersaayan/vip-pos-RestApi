@@ -8,7 +8,8 @@ export class PhoneEntity implements Phone {
   brand: string;
   model: string;
   name: string;
-  groupCode: string;
+  ikasGroupCode: string;
+  myorGroupCode: string;
   stockCode: string;
   createdAt: Date;
   updatedAt: Date;

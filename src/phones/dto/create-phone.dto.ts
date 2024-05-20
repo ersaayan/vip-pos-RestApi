@@ -15,7 +15,11 @@ export class CreatePhoneDto {
 
   @IsString()
   @IsNotEmpty()
-  groupCode: string;
+  ikasGroupCode: string;
+
+  @IsString()
+  @IsNotEmpty()
+  myorGroupCode: string;
 
   @IsString()
   @IsNotEmpty()
