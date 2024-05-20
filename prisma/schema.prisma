@@ -58,13 +58,14 @@ model CaseBrand {
 }
 
 model CaseModelVariation {
-  id               String             @id @default(cuid())
-  modelVariation   String
-  myorGroupCode    String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  StockCart        StockCart[]
-  StockCartHistory StockCartHistory[]
+  id                String             @id @default(cuid())
+  modelVariation    String
+  modelVariationEng String
+  myorGroupCode     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  StockCart         StockCart[]
+  StockCartHistory  StockCartHistory[]
 }
 
 model StockCart {

@@ -7,5 +7,9 @@ export class CreateCaseModelVariationDto {
 
   @IsString()
   @IsNotEmpty()
+  modelVariationEng: string;
+
+  @IsString()
+  @IsNotEmpty()
   myorGroupCode: string;
 }
