@@ -29,7 +29,7 @@ export class CaseModelVariationsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.caseModelVariationsService.findOne(+id);
+    return this.caseModelVariationsService.findOne(id);
   }
 
   @Patch(':id')
@@ -38,13 +38,13 @@ export class CaseModelVariationsController {
     @Body() updateCaseModelVariationDto: UpdateCaseModelVariationDto,
   ) {
     return this.caseModelVariationsService.update(
-      +id,
+      id,
       updateCaseModelVariationDto,
     );
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.caseModelVariationsService.remove(+id);
+    return this.caseModelVariationsService.remove(id);
   }
 }

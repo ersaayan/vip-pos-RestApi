@@ -48,21 +48,23 @@ model Phone {
 }
 
 model CaseBrand {
-  id            String      @id @default(cuid())
-  brandName     String
-  myorGroupCode String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  StockCart     StockCart[]
+  id               String             @id @default(cuid())
+  brandName        String
+  myorGroupCode    String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  StockCart        StockCart[]
+  StockCartHistory StockCartHistory[]
 }
 
 model CaseModelVariation {
-  id             String      @id @default(cuid())
-  modelVariation String
-  myorGroupCode  String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  StockCart      StockCart[]
+  id               String             @id @default(cuid())
+  modelVariation   String
+  myorGroupCode    String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  StockCart        StockCart[]
+  StockCartHistory StockCartHistory[]
 }
 
 model StockCart {
@@ -91,7 +93,7 @@ model StockCart {
 }
 
 model StockCartHistory {
-  id                 String   @id @default(cuid())
+  id                 String             @id @default(cuid())
   phoneId            String
   caseBrand          String
   caseModelVariation String
@@ -100,12 +102,18 @@ model StockCartHistory {
   description        String?
   barcode            String?
   cost               Float?
+  satisFiyat1        Float?
+  satisFiyat2        Float?
+  satisFiyat3        Float?
+  satisFiyat4        Float?
   quantity           Int?
   updatedBy          String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  Phone              Phone    @relation(fields: [phoneId], references: [id])
-  updatedByUser      User?    @relation(fields: [updatedBy], references: [id])
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  Phone              Phone              @relation(fields: [phoneId], references: [id])
+  User               User?              @relation(fields: [updatedBy], references: [id])
+  CaseBrand          CaseBrand          @relation(fields: [caseBrand], references: [id])
+  CaseModelVariation CaseModelVariation @relation(fields: [caseModelVariation], references: [id])
 }
 
 model PlatformOrderVerification {

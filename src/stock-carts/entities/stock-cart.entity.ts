@@ -13,6 +13,10 @@ export class StockCartEntity implements StockCart {
   description: string;
   barcode: string;
   cost: number;
+  satisFiyat1: number;
+  satisFiyat2: number;
+  satisFiyat3: number;
+  satisFiyat4: number;
   quantity: number;
   updatedBy: string;
   createdAt: Date;

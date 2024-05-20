@@ -1,15 +1,15 @@
-import { IsString, IsArray, IsOptional } from 'class-validator';
+import { IsString, IsArray, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class CreateStockCartDto {
   @IsArray()
   phoneIds: string;
 
   @IsArray()
-  caseModelVariations: string;
+  caseModelVariationsIds: string;
 
   @IsString()
-  @IsOptional()
-  caseBrand: string;
+  @IsNotEmpty()
+  caseBrandId: string;
 
   @IsString()
   @IsOptional()
@@ -22,6 +22,22 @@ export class CreateStockCartDto {
   @IsString()
   @IsOptional()
   barcode: string;
+
+  @IsString()
+  @IsOptional()
+  satisFiyat1: string;
+
+  @IsString()
+  @IsOptional()
+  satisFiyat2: string;
+
+  @IsString()
+  @IsOptional()
+  satisFiyat3: string;
+
+  @IsString()
+  @IsOptional()
+  satisFiyat4: string;
 
   @IsOptional()
   cost: string;

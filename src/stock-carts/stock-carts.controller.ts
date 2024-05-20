@@ -34,17 +34,25 @@ export class StockCartsController {
       description,
       barcode,
       cost,
+      satisFiyat1,
+      satisFiyat2,
+      satisFiyat3,
+      satisFiyat4,
       quantity,
     } = body;
     const data: CreateStockCartDto = {
       phoneIds: phoneIds,
-      caseModelVariations,
-      caseBrand,
+      caseModelVariationsIds: caseModelVariations,
+      caseBrandId: caseBrand,
       caseImage: file.filename,
       title,
       description,
       barcode,
       cost,
+      satisFiyat1,
+      satisFiyat2,
+      satisFiyat3,
+      satisFiyat4,
       quantity,
     };
     const stockCart = await this.stockCartsService.create(data, file);

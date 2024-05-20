@@ -14,12 +14,23 @@ export class StockCartsService {
     data: CreateStockCartDto,
     file: Express.Multer.File,
   ): Promise<any> {
-    const { caseBrand, title, description, barcode, cost, quantity } = data;
+    const {
+      caseBrandId,
+      title,
+      description,
+      barcode,
+      cost,
+      satisFiyat1,
+      satisFiyat2,
+      satisFiyat3,
+      satisFiyat4,
+      quantity,
+    } = data;
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
     this.deleteAllStockCartHistory();
     const phoneIdsArray: string[] = JSON.parse(data.phoneIds);
-    const caseModelArray: string[] = JSON.parse(data.caseModelVariations);
+    const caseModelArray: string[] = JSON.parse(data.caseModelVariationsIds);
     for (const phoneId of phoneIdsArray) {
       for (const caseModel of caseModelArray) {
         const stockCart: Prisma.StockCartHistoryCreateInput = {
@@ -28,13 +39,25 @@ export class StockCartsService {
               id: phoneId,
             },
           },
-          caseBrand,
-          caseModelVariation: caseModel,
+          CaseBrand: {
+            connect: {
+              id: caseBrandId,
+            },
+          },
+          CaseModelVariation: {
+            connect: {
+              id: caseModel,
+            },
+          },
           caseImage: caseImageUrl,
           title,
           description,
           barcode,
           cost: parseFloat(cost),
+          satisFiyat1: parseFloat(satisFiyat1),
+          satisFiyat2: parseFloat(satisFiyat2),
+          satisFiyat3: parseFloat(satisFiyat3),
+          satisFiyat4: parseFloat(satisFiyat4),
           quantity: parseInt(quantity),
         };
         const createdStockCart = await this.prisma.stockCartHistory.create({
@@ -150,8 +173,16 @@ export class StockCartsService {
             id: stockCartHistory.phoneId,
           },
         },
-        caseBrand: stockCartHistory.caseBrand,
-        caseModelVariation: stockCartHistory.caseModelVariation,
+        CaseBrand: {
+          connect: {
+            id: stockCartHistory.caseBrand,
+          },
+        },
+        CaseModelVariation: {
+          connect: {
+            id: stockCartHistory.caseModelVariation,
+          },
+        },
         caseImage: stockCartHistory.caseImage,
         title: stockCartHistory.title,
         description: stockCartHistory.description,
@@ -348,9 +379,9 @@ export class StockCartsService {
       });
 
       const row = worksheet.addRow([
-        `${stockCart.caseBrand}-${phone.groupCode.replace(/\s/g, '')}`,
+        `${stockCart.caseBrand}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
         '',
-        `${phone.brand} ${phone.groupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${stockCart.caseBrand}`,
         `${stockCart.description}`,
         0.01,
         0.01,
@@ -425,9 +456,9 @@ export class StockCartsService {
       });
 
       const row = worksheet.addRow([
-        `${stockCart.caseBrand}-${phone.groupCode.replace(/\s/g, '')}`,
+        `${stockCart.caseBrand}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
         '',
-        `${phone.brand} ${phone.groupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${stockCart.caseBrand}`,
         `${stockCart.description}`,
         0.01,
         0.01,
