@@ -9,6 +9,11 @@ import { OrderVerificationModule } from './order-verification/order-verification
 import { OrderModule } from './order/order.module';
 import { CaseBrandModule } from './case-brand/case-brand.module';
 import { CaseModelVariationsModule } from './case-model-variations/case-model-variations.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/guard/roles.guard';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
     MulterModule.register({
@@ -23,8 +28,15 @@ import { CaseModelVariationsModule } from './case-model-variations/case-model-va
     OrderModule,
     CaseBrandModule,
     CaseModelVariationsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/uploads',
+    }),
   ],
   controllers: [],
-  providers: [],
+  providers: [{ provide: APP_GUARD, useClass: RolesGuard }, ConfigService],
 })
 export class AppModule {}

@@ -23,7 +23,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    const accessToken = this.generateAccessToken(user.id, user.role);
+    const accessToken = this.generateAccessToken(user.id, user.roles[0]);
     return {
       accessToken,
       isSuccess: true,

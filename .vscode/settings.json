@@ -7,5 +7,10 @@
         "**/.DS_Store": false,
         "**/Thumbs.db": false
     },
-    "explorerExclude.backup": {}
+    "explorerExclude.backup": {},
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#2A2D39",
+        "titleBar.activeBackground": "#3A3F4F",
+        "titleBar.activeForeground": "#FAFAFB"
+    }
 }

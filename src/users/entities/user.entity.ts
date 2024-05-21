@@ -8,7 +8,7 @@ export class UserEntity implements User {
   email: string;
   name: string;
   password: string;
-  role: $Enums.Role;
+  roles: $Enums.Role[];
   createdAt: Date;
   updatedAt: Date;
 }

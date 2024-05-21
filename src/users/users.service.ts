@@ -15,12 +15,13 @@ export class UsersService {
       createUserDto.password,
       roundsOfHashing,
     );
+    const role = JSON.parse(createUserDto.roles);
     return await this.prisma.user.create({
       data: {
         name: createUserDto.name,
         email: createUserDto.email,
         password: hashedPassword,
-        role: createUserDto.role,
+        roles: role,
       },
     });
   }
@@ -42,6 +43,7 @@ export class UsersService {
       updateUserDto.password,
       roundsOfHashing,
     );
+    const role = JSON.parse(updateUserDto.roles);
     return this.prisma.user.update({
       where: {
         id,
@@ -49,6 +51,7 @@ export class UsersService {
       data: {
         ...updateUserDto,
         password: hashedPassword,
+        roles: role,
       },
     });
   }
