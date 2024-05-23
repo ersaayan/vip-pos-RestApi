@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateStockCartDto } from './dto/create-stock-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,10 +9,7 @@ import * as excel from 'exceljs';
 export class StockCartsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(
-    data: CreateStockCartDto,
-    file: Express.Multer.File,
-  ): Promise<any> {
+  async create(data: any, file: Express.Multer.File): Promise<any> {
     const {
       caseBrandId,
       title,

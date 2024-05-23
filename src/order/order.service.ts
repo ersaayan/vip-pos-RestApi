@@ -5,14 +5,11 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Role } from '@prisma/client';
-import { Roles } from 'src/auth/decorator';
 
 @Injectable()
 export class OrderService {
   constructor(private prisma: PrismaService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN)
   async create(createOrderDto: CreateOrderDto) {
     const orders: any[] = [];
     const stockCartIds: string[] = JSON.parse(createOrderDto.stockCartId);
@@ -52,8 +49,6 @@ export class OrderService {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN)
   async uploadFile(file: Express.Multer.File, orderId: string) {
     return this.prisma.orderFiles.create({
       data: {

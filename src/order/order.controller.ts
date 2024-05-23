@@ -11,17 +11,16 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { Roles } from 'src/auth/decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('ADMIN')
   @Post()
   create(@Body() body: any) {
     return this.orderService.create(body);

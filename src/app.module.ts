@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -9,11 +9,10 @@ import { OrderVerificationModule } from './order-verification/order-verification
 import { OrderModule } from './order/order.module';
 import { CaseBrandModule } from './case-brand/case-brand.module';
 import { CaseModelVariationsModule } from './case-model-variations/case-model-variations.module';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/guard/roles.guard';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
 @Module({
   imports: [
     MulterModule.register({
@@ -37,6 +36,12 @@ import { join } from 'path';
     }),
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: RolesGuard }, ConfigService],
+  providers: [ConfigService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthenticationMiddleware)
+      .forRoutes('/order-verification', '/order');
+  }
+}

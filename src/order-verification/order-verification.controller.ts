@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { OrderVerificationService } from './order-verification.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { GetUser } from 'src/auth/decorator';
 import { User } from '@prisma/client';
 import { CreateOrderVerificationDto } from './dto/create-order-verification.dto';
 
@@ -21,7 +20,7 @@ export class OrderVerificationController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@GetUser() user: User, @Body() data: CreateOrderVerificationDto) {
+  create(@Body() data: CreateOrderVerificationDto, user: User) {
     return this.orderVerificationService.create(user.id, data);
   }
 
