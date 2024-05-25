@@ -16,7 +16,7 @@ export class CaseBrandService {
     return this.prisma.caseBrand.findMany();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.prisma.caseBrand.findUnique({
       where: { id },
     });

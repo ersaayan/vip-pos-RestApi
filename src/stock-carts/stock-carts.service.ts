@@ -4,10 +4,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Prisma } from '@prisma/client';
 import * as excel from 'exceljs';
+import { CaseBrandService } from 'src/case-brand/case-brand.service';
+import { CaseModelVariationsService } from 'src/case-model-variations/case-model-variations.service';
 
 @Injectable()
 export class StockCartsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private caseBrandService: CaseBrandService,
+    private caseModelVariationsService: CaseModelVariationsService,
+  ) {}
 
   async create(data: any, file: Express.Multer.File): Promise<any> {
     const {
@@ -25,6 +31,10 @@ export class StockCartsService {
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
     this.deleteAllStockCartHistory();
+    const satisF1 = parseFloat(satisFiyat1);
+    const satisF2 = parseFloat(satisFiyat2);
+    const satisF3 = parseFloat(satisFiyat3);
+    const satisF4 = parseFloat(satisFiyat4);
     const phoneIdsArray: string[] = JSON.parse(data.phoneIds);
     const caseModelArray: string[] = JSON.parse(data.caseModelVariationsIds);
     for (const phoneId of phoneIdsArray) {
@@ -50,10 +60,10 @@ export class StockCartsService {
           description,
           barcode,
           cost: parseFloat(cost),
-          satisFiyat1: parseFloat(satisFiyat1),
-          satisFiyat2: parseFloat(satisFiyat2),
-          satisFiyat3: parseFloat(satisFiyat3),
-          satisFiyat4: parseFloat(satisFiyat4),
+          satisFiyat1: satisF1,
+          satisFiyat2: satisF2,
+          satisFiyat3: satisF3,
+          satisFiyat4: satisF4,
           quantity: parseInt(quantity),
         };
         const createdStockCart = await this.prisma.stockCartHistory.create({
@@ -144,7 +154,34 @@ export class StockCartsService {
   }
 
   async getAllStockCartHistory() {
-    return this.prisma.stockCartHistory.findMany();
+    const stockCarts = await this.prisma.stockCartHistory.findMany();
+    return Promise.all(
+      stockCarts.map(async (stockCart) => {
+        const caseBrand = await this.caseBrandService.findOne(
+          stockCart.caseBrand,
+        );
+        const caseModelVariation =
+          await this.caseModelVariationsService.findOne(
+            stockCart.caseModelVariation,
+          );
+        return {
+          id: stockCart.id,
+          phoneId: stockCart.phoneId,
+          caseBrand: caseBrand.brandName,
+          caseModelVariation: caseModelVariation.modelVariation,
+          caseImage: stockCart.caseImage,
+          title: stockCart.title,
+          description: stockCart.description,
+          barcode: stockCart.barcode,
+          cost: stockCart.cost,
+          satisFiyat1: stockCart.satisFiyat1,
+          satisFiyat2: stockCart.satisFiyat2,
+          satisFiyat3: stockCart.satisFiyat3,
+          satisFiyat4: stockCart.satisFiyat4,
+          quantity: stockCart.quantity,
+        };
+      }),
+    );
   }
 
   async deleteStockCartHistoriesIdsNotSent(ids: string[]) {
@@ -186,7 +223,7 @@ export class StockCartsService {
         cost: stockCartHistory.cost,
         quantity: stockCartHistory.quantity,
       };
-      await this.prisma.stockCart.create({
+      return await this.prisma.stockCart.create({
         data: newData,
       });
     });

@@ -18,7 +18,9 @@ export class CaseModelVariationsService {
   }
 
   findOne(id: string) {
-    return `This action returns a #${id} caseModelVariation`;
+    return this.prisma.caseModelVariation.findUnique({
+      where: { id },
+    });
   }
 
   update(id: string, updateCaseModelVariationDto: UpdateCaseModelVariationDto) {
