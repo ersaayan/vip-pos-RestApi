@@ -28,9 +28,9 @@ export class StockCartsService {
       satisFiyat4,
       quantity,
     } = data;
+    this.deleteAllStockCartHistory();
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
-    this.deleteAllStockCartHistory();
     const satisF1 = parseFloat(satisFiyat1);
     const satisF2 = parseFloat(satisFiyat2);
     const satisF3 = parseFloat(satisFiyat3);
@@ -98,9 +98,16 @@ export class StockCartsService {
   }
 
   async getAllStockCartHistoryWithCustomOutput() {
-    const stockCartHistories = await this.prisma.stockCartHistory.findMany();
-    const stockCartHistoriesWithCustomOutput = stockCartHistories.map(
-      async (stockCartHistory) => {
+    const stockCarts = await this.prisma.stockCartHistory.findMany();
+    const stockCartsWithCustomOutput = await Promise.all(
+      stockCarts.map(async (stockCartHistory) => {
+        const caseBrand = await this.caseBrandService.findOne(
+          stockCartHistory.caseBrand,
+        );
+        const caseModelVariation =
+          await this.caseModelVariationsService.findOne(
+            stockCartHistory.caseModelVariation,
+          );
         const phone = await this.prisma.phone.findUnique({
           where: {
             id: stockCartHistory.phoneId,
@@ -109,24 +116,35 @@ export class StockCartsService {
         return {
           id: stockCartHistory.id,
           caseImage: stockCartHistory.caseImage,
-          stockCode: `${stockCartHistory.caseBrand}\\${phone.stockCode}/${stockCartHistory.caseModelVariation}`,
-          myorStockName: `${phone.brand} ${phone.model} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
-          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          stockCode: `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation}`,
+          myorStockName: `${phone.brand} ${phone.model} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
+          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
           title: stockCartHistory.title,
           description: stockCartHistory.description,
           cost: stockCartHistory.cost,
           quantity: stockCartHistory.quantity,
           barcode: stockCartHistory.barcode,
+          satisFiyat1: stockCartHistory.satisFiyat1,
+          satisFiyat2: stockCartHistory.satisFiyat2,
+          satisFiyat3: stockCartHistory.satisFiyat3,
+          satisFiyat4: stockCartHistory.satisFiyat4,
         };
-      },
+      }),
     );
-    return stockCartHistoriesWithCustomOutput;
+    return stockCartsWithCustomOutput;
   }
 
   async getAllStockCartWithCustomOutput() {
     const stockCarts = await this.prisma.stockCart.findMany();
     const stockCartsWithCustomOutput = stockCarts.map(
       async (stockCartHistory) => {
+        const caseBrand = await this.caseBrandService.findOne(
+          stockCartHistory.caseBrand,
+        );
+        const caseModelVariation =
+          await this.caseModelVariationsService.findOne(
+            stockCartHistory.caseModelVariation,
+          );
         const phone = await this.prisma.phone.findUnique({
           where: {
             id: stockCartHistory.phoneId,
@@ -135,14 +153,18 @@ export class StockCartsService {
         return {
           id: stockCartHistory.id,
           caseImage: stockCartHistory.caseImage,
-          stockCode: `${stockCartHistory.caseBrand}\\${phone.stockCode}/${stockCartHistory.caseModelVariation}`,
-          myorStockName: `${phone.brand} ${phone.model} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
-          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${stockCartHistory.caseBrand} ${stockCartHistory.caseModelVariation}`,
+          stockCode: `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation}`,
+          myorStockName: `${phone.brand} ${phone.model} ${caseBrand.brandName} ${stockCartHistory.caseModelVariation}`,
+          ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
           title: stockCartHistory.title,
           description: stockCartHistory.description,
           cost: stockCartHistory.cost,
           quantity: stockCartHistory.quantity,
           barcode: stockCartHistory.barcode,
+          satisFiyat1: stockCartHistory.satisFiyat1,
+          satisFiyat2: stockCartHistory.satisFiyat2,
+          satisFiyat3: stockCartHistory.satisFiyat3,
+          satisFiyat4: stockCartHistory.satisFiyat4,
         };
       },
     );
@@ -150,7 +172,34 @@ export class StockCartsService {
   }
 
   async getAllStockCart() {
-    return this.prisma.stockCart.findMany();
+    const stockCarts = await this.prisma.stockCart.findMany();
+    return Promise.all(
+      stockCarts.map(async (stockCart) => {
+        const caseBrand = await this.caseBrandService.findOne(
+          stockCart.caseBrand,
+        );
+        const caseModelVariation =
+          await this.caseModelVariationsService.findOne(
+            stockCart.caseModelVariation,
+          );
+        return {
+          id: stockCart.id,
+          phoneId: stockCart.phoneId,
+          caseBrand: caseBrand.brandName,
+          caseModelVariation: caseModelVariation.modelVariation,
+          caseImage: stockCart.caseImage,
+          title: stockCart.title,
+          description: stockCart.description,
+          barcode: stockCart.barcode,
+          cost: stockCart.cost,
+          satisFiyat1: stockCart.satisFiyat1,
+          satisFiyat2: stockCart.satisFiyat2,
+          satisFiyat3: stockCart.satisFiyat3,
+          satisFiyat4: stockCart.satisFiyat4,
+          quantity: stockCart.quantity,
+        };
+      }),
+    );
   }
 
   async getAllStockCartHistory() {
