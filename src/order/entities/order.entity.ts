@@ -5,7 +5,7 @@ export class OrderEntity implements Order {
   stockCartId: string;
   orderCost: number;
   userId: string;
-  status: string;
+  statusId: string;
   createdAt: Date;
   updatedAt: Date;
 }

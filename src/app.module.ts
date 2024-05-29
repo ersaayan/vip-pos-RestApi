@@ -40,8 +40,6 @@ import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .forRoutes('/order-verification', '/order');
+    consumer.apply(AuthenticationMiddleware).forRoutes('/order-verification');
   }
 }

@@ -6,21 +6,16 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { Roles } from 'src/auth/decorator/roles.decorator';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
   @Post()
   create(@Body() body: any) {
     return this.orderService.create(body);
@@ -28,7 +23,7 @@ export class OrderController {
 
   @Post('upload-file')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@Body() body: any, file: Express.Multer.File) {
+  uploadFile(@Body() body: any, @UploadedFile() file: Express.Multer.File) {
     return this.orderService.uploadFile(file, body.orderId);
   }
 
@@ -42,6 +37,11 @@ export class OrderController {
     return this.orderService.getAllOrdersWithoutDetails();
   }
 
+  @Get('get-all-orders-with-details')
+  getAllOrdersWithDetails() {
+    return this.orderService.getAllOrdersWithDetails();
+  }
+
   @Get('get-order-details-by-order-id/:id')
   getOrderDetailsByOrderId(@Param('id') id: string) {
     return this.orderService.getOrderDetailsByOrderId(id);
@@ -50,6 +50,11 @@ export class OrderController {
   @Get('get-orders-by-user-id/:id')
   getOrdersByUserId(@Param('id') id: string) {
     return this.orderService.getOrdersByUserId(id);
+  }
+
+  @Get('get-orders-with-details-by-user-id/:id')
+  getOrdersWithDetailsByUserId(@Param('id') id: string) {
+    return this.orderService.getOrdersWithDetailsByUserId(id);
   }
 
   @Get(':id')

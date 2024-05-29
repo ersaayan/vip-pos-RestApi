@@ -126,14 +126,24 @@ model PlatformOrderVerification {
   User         User     @relation(fields: [userId], references: [id])
 }
 
+model Status {
+  id          String        @id @default(cuid())
+  status      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Order       Order[]
+  OrderDetail OrderDetail[]
+}
+
 model Order {
   id          String        @id @default(cuid())
   orderCost   Float
   userId      String
-  status      String
+  statusId    String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   User        User          @relation(fields: [userId], references: [id])
+  Status      Status        @relation(fields: [statusId], references: [id])
   OrderFiles  OrderFiles[]
   OrderDetail OrderDetail[]
 }
@@ -141,11 +151,14 @@ model Order {
 model OrderDetail {
   id        String    @id @default(cuid())
   orderId   String
+  statusid  String
   stockCart String
+  quantity  Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Order     Order     @relation(fields: [orderId], references: [id])
   StockCart StockCart @relation(fields: [stockCart], references: [id])
+  Status    Status    @relation(fields: [statusid], references: [id])
 }
 
 model OrderFiles {

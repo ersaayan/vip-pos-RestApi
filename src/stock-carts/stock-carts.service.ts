@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
@@ -18,6 +19,8 @@ export class StockCartsService {
   async create(data: any, file: Express.Multer.File): Promise<any> {
     const {
       caseBrandId,
+      caseImage,
+      caseModelVariationsIds,
       title,
       description,
       barcode,
@@ -28,7 +31,6 @@ export class StockCartsService {
       satisFiyat4,
       quantity,
     } = data;
-    this.deleteAllStockCartHistory();
     const caseImageUrl = await this.saveImage(file);
     const stockCarts = [];
     const satisF1 = parseFloat(satisFiyat1);
@@ -37,6 +39,7 @@ export class StockCartsService {
     const satisF4 = parseFloat(satisFiyat4);
     const phoneIdsArray: string[] = JSON.parse(data.phoneIds);
     const caseModelArray: string[] = JSON.parse(data.caseModelVariationsIds);
+    this.deleteAllStockCartHistory();
     for (const phoneId of phoneIdsArray) {
       for (const caseModel of caseModelArray) {
         const stockCart: Prisma.StockCartHistoryCreateInput = {
@@ -78,7 +81,7 @@ export class StockCartsService {
   private saveImage(file: Express.Multer.File): Promise<string> {
     const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = path.resolve(__dirname, '..', '..', 'public', fileName);
-    const fileUrl = `/uploads/${fileName}`;
+    const fileUrl = `/uploads/stockCarts/${fileName}`;
 
     return new Promise((resolve, reject) => {
       const fileStream = fs.createWriteStream(filePath);
@@ -116,6 +119,7 @@ export class StockCartsService {
         return {
           id: stockCartHistory.id,
           caseImage: stockCartHistory.caseImage,
+          caseBrand: caseBrand.brandName,
           stockCode: `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation}`,
           myorStockName: `${phone.brand} ${phone.model} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
           ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
@@ -128,6 +132,7 @@ export class StockCartsService {
           satisFiyat2: stockCartHistory.satisFiyat2,
           satisFiyat3: stockCartHistory.satisFiyat3,
           satisFiyat4: stockCartHistory.satisFiyat4,
+          updatedAt: stockCartHistory.updatedAt,
         };
       }),
     );
@@ -136,8 +141,8 @@ export class StockCartsService {
 
   async getAllStockCartWithCustomOutput() {
     const stockCarts = await this.prisma.stockCart.findMany();
-    const stockCartsWithCustomOutput = stockCarts.map(
-      async (stockCartHistory) => {
+    return Promise.all(
+      stockCarts.map(async (stockCartHistory) => {
         const caseBrand = await this.caseBrandService.findOne(
           stockCartHistory.caseBrand,
         );
@@ -153,8 +158,9 @@ export class StockCartsService {
         return {
           id: stockCartHistory.id,
           caseImage: stockCartHistory.caseImage,
+          caseBrand: caseBrand.brandName,
           stockCode: `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation}`,
-          myorStockName: `${phone.brand} ${phone.model} ${caseBrand.brandName} ${stockCartHistory.caseModelVariation}`,
+          myorStockName: `${phone.brand} ${phone.model} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
           ikasStockName: `${phone.brand} ${phone.model} ${stockCartHistory.title} ${caseBrand.brandName} ${caseModelVariation.modelVariation}`,
           title: stockCartHistory.title,
           description: stockCartHistory.description,
@@ -165,10 +171,10 @@ export class StockCartsService {
           satisFiyat2: stockCartHistory.satisFiyat2,
           satisFiyat3: stockCartHistory.satisFiyat3,
           satisFiyat4: stockCartHistory.satisFiyat4,
+          updatedAt: stockCartHistory.updatedAt,
         };
-      },
+      }),
     );
-    return stockCartsWithCustomOutput;
   }
 
   async getAllStockCart() {
@@ -270,7 +276,12 @@ export class StockCartsService {
         description: stockCartHistory.description,
         barcode: stockCartHistory.barcode,
         cost: stockCartHistory.cost,
+        satisFiyat1: stockCartHistory.satisFiyat1,
+        satisFiyat2: stockCartHistory.satisFiyat2,
+        satisFiyat3: stockCartHistory.satisFiyat3,
+        satisFiyat4: stockCartHistory.satisFiyat4,
         quantity: stockCartHistory.quantity,
+        updatedAt: stockCartHistory.updatedAt,
       };
       return await this.prisma.stockCart.create({
         data: newData,
@@ -302,6 +313,12 @@ export class StockCartsService {
     const worksheet = workspace.getWorksheet(1);
 
     for (const stockCart of stockCarts) {
+      const caseBrand = await this.caseBrandService.findOne(
+        stockCart.caseBrand,
+      );
+      const caseModelVariation = await this.caseModelVariationsService.findOne(
+        stockCart.caseModelVariation,
+      );
       const phone = await this.prisma.phone.findUnique({
         where: {
           id: stockCart.phoneId,
@@ -310,18 +327,18 @@ export class StockCartsService {
 
       const row = worksheet.addRow([
         'Stok',
-        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+        `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
-        `${phone.name} ${stockCart.caseBrand} ${stockCart.caseModelVariation.replace(
+        `${phone.name} ${caseBrand.brandName} ${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
-        `${stockCart.title}`,
-        '',
-        '',
-        '',
+        'Telefon Kılıfları',
+        `${caseBrand.brandName}`,
+        `${phone.stockCode}`,
+        `${caseModelVariation.modelVariation}`,
         '',
         '',
         '',
@@ -378,6 +395,12 @@ export class StockCartsService {
     const worksheet = workspace.getWorksheet(1);
 
     for (const stockCart of stockCarts) {
+      const caseBrand = await this.caseBrandService.findOne(
+        stockCart.caseBrand,
+      );
+      const caseModelVariation = await this.caseModelVariationsService.findOne(
+        stockCart.caseModelVariation,
+      );
       const phone = await this.prisma.phone.findUnique({
         where: {
           id: stockCart.phoneId,
@@ -386,18 +409,18 @@ export class StockCartsService {
 
       const row = worksheet.addRow([
         'Stok',
-        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+        `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
-        `${phone.name} ${stockCart.caseBrand} ${stockCart.caseModelVariation.replace(
+        `${phone.name} ${caseBrand.brandName} ${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
-        `${stockCart.title}`,
-        '',
-        '',
-        '',
+        'Telefon Kılıfları',
+        `${caseBrand.brandName}`,
+        `${phone.stockCode}`,
+        `${caseModelVariation.modelVariation}`,
         '',
         '',
         '',
@@ -454,6 +477,12 @@ export class StockCartsService {
     const worksheet = workspace.getWorksheet(1);
 
     for (const stockCart of stockCarts) {
+      const caseBrand = await this.caseBrandService.findOne(
+        stockCart.caseBrand,
+      );
+      const caseModelVariation = await this.caseModelVariationsService.findOne(
+        stockCart.caseModelVariation,
+      );
       const phone = await this.prisma.phone.findUnique({
         where: {
           id: stockCart.phoneId,
@@ -461,15 +490,15 @@ export class StockCartsService {
       });
 
       const row = worksheet.addRow([
-        `${stockCart.caseBrand}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
+        `${caseBrand.brandName}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
         '',
-        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${caseBrand.brandName}`,
         `${stockCart.description}`,
         0.01,
         0.01,
         0.01,
         `${stockCart.barcode}`,
-        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+        `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
@@ -483,7 +512,7 @@ export class StockCartsService {
         '',
         `${stockCart.quantity}`,
         'Renk',
-        `${stockCart.caseModelVariation.replace(/\s/g, '')}`,
+        `${caseModelVariation.modelVariation.replace(/\s/g, '')}`,
         '',
         '',
         '',
@@ -531,6 +560,12 @@ export class StockCartsService {
     const worksheet = workspace.getWorksheet(1);
 
     for (const stockCart of stockCarts) {
+      const caseBrand = await this.caseBrandService.findOne(
+        stockCart.caseBrand,
+      );
+      const caseModelVariation = await this.caseModelVariationsService.findOne(
+        stockCart.caseModelVariation,
+      );
       const phone = await this.prisma.phone.findUnique({
         where: {
           id: stockCart.phoneId,
@@ -538,15 +573,15 @@ export class StockCartsService {
       });
 
       const row = worksheet.addRow([
-        `${stockCart.caseBrand}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
+        `${caseBrand.brandName}-${phone.ikasGroupCode.replace(/\s/g, '')}`,
         '',
-        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${stockCart.caseBrand}`,
+        `${phone.brand} ${phone.ikasGroupCode} ${stockCart.title} ${caseBrand.brandName}`,
         `${stockCart.description}`,
         0.01,
         0.01,
         0.01,
         `${stockCart.barcode}`,
-        `${stockCart.caseBrand}\\${phone.stockCode}/${stockCart.caseModelVariation.replace(
+        `${caseBrand.brandName}\\${phone.stockCode}/${caseModelVariation.modelVariation.replace(
           /\s/g,
           '',
         )}`,
@@ -560,7 +595,7 @@ export class StockCartsService {
         '',
         `${stockCart.quantity}`,
         'Renk',
-        `${stockCart.caseModelVariation.replace(/\s/g, '')}`,
+        `${caseModelVariation.modelVariation.replace(/\s/g, '')}`,
         '',
         '',
         '',

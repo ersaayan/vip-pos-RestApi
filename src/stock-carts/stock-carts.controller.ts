@@ -96,8 +96,10 @@ export class StockCartsController {
 
   @Delete('stock-cart-histories-ids-not-sent')
   async deleteStockCartHistoriesIdsNotSent(@Body() body: any) {
-    const ids = JSON.parse(body.ids);
-    return await this.stockCartsService.deleteStockCartHistoriesIdsNotSent(ids);
+    // const ids = JSON.parse(body.ids);
+    return await this.stockCartsService.deleteStockCartHistoriesIdsNotSent(
+      body.ids,
+    );
   }
 
   @Patch('/update-stock-cart/:id')

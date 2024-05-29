@@ -56,7 +56,13 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # stock cart images
 public/*.png
-
+public/*.avif
+public/*.jpg
+public/*.jpeg
+public/*.webp
+public/*.gif
+public/*.svg
+public/*.ico
 # exports files
 exports/*.xlsx
 spdmvs.txt
