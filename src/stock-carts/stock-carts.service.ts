@@ -80,7 +80,13 @@ export class StockCartsService {
 
   private saveImage(file: Express.Multer.File): Promise<string> {
     const fileName = `${Date.now()}-${file.originalname}`;
-    const filePath = path.resolve(__dirname, '..', '..', 'public', fileName);
+    const filePath = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'public/stockCarts',
+      fileName,
+    );
     const fileUrl = `/uploads/stockCarts/${fileName}`;
 
     return new Promise((resolve, reject) => {
@@ -89,6 +95,60 @@ export class StockCartsService {
       fileStream.on('error', reject);
       fileStream.write(file.buffer);
       fileStream.end();
+    });
+  }
+
+  async getAllPhotos() {
+    const stockCarts = await this.prisma.stockCart.findMany();
+    const photos = stockCarts.map((stockCart) => stockCart.caseImage);
+    return [...new Set(photos)];
+  }
+
+  async getAllPhotosWithCaseBrand() {
+    const stockCarts = await this.prisma.stockCart.findMany({
+      select: {
+        caseImage: true,
+        CaseBrand: {
+          select: {
+            brandName: true,
+          },
+        },
+      },
+    });
+    const uniquePhotos = Array.from(
+      new Set(
+        stockCarts.map((stockCart) =>
+          JSON.stringify({
+            caseImage: stockCart.caseImage,
+            caseBrand: stockCart.CaseBrand.brandName,
+          }),
+        ),
+      ),
+    ).map((photo) => JSON.parse(photo));
+    return uniquePhotos;
+  }
+
+  async updateStockCartPhotos(file: Express.Multer.File, oldPhotoPath: string) {
+    const caseImageUrl = await this.saveImage(file);
+    // Eski fotoğrafı sil
+    const oldPhotoPathArray = oldPhotoPath.split('/');
+    const oldPhotoName = oldPhotoPathArray[oldPhotoPathArray.length - 1];
+    const oldPhotoPathResolved = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'public/stockCarts',
+      oldPhotoName,
+    );
+    fs.unlinkSync(oldPhotoPathResolved);
+    // stockcart tablosundaki caseImage alanını eski fotoğrafın yolu olanları yeni fotoğrafın yolu ile güncelle
+    return this.prisma.stockCart.updateMany({
+      where: {
+        caseImage: oldPhotoPath,
+      },
+      data: {
+        caseImage: caseImageUrl,
+      },
     });
   }
 
@@ -296,6 +356,43 @@ export class StockCartsService {
         id,
       },
       data,
+    });
+  }
+
+  async updateStockCartBarcode(id: string, barcode: string) {
+    return this.prisma.stockCart.update({
+      where: {
+        id,
+      },
+      data: {
+        barcode: barcode,
+      },
+    });
+  }
+
+  // idsi gönderilen stok kartının fotoğrafını günceller
+  async updateStockCartImage(id: string, file: Express.Multer.File) {
+    const stockCart = await this.prisma.stockCart.findUnique({
+      where: {
+        id,
+      },
+    });
+    const filePath = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      stockCart.caseImage,
+    );
+    fs.unlinkSync(filePath);
+    const caseImageUrl = await this.saveImage(file);
+    return this.prisma.stockCart.update({
+      where: {
+        id,
+      },
+      data: {
+        caseImage: caseImageUrl,
+      },
     });
   }
 

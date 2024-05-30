@@ -63,6 +63,14 @@ public/*.webp
 public/*.gif
 public/*.svg
 public/*.ico
+public/stockCarts/*.png
+public/stockCarts/*.avif
+public/stockCarts/*.jpg
+public/stockCarts/*.jpeg
+public/stockCarts/*.webp
+public/stockCarts/*.gif
+public/stockCarts/*.svg
+public/stockCarts/*.ico
 # exports files
 exports/*.xlsx
 spdmvs.txt

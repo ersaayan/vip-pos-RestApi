@@ -82,8 +82,14 @@ export class OrderService {
     orderId: string,
   ): Promise<string> {
     const fileName = `${orderId}-${file.originalname}`;
-    const filePath = path.resolve(__dirname, '..', '..', 'public', fileName);
-    const fileUrl = `/uploads/stockCarts/${fileName}`;
+    const filePath = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'public/order',
+      fileName,
+    );
+    const fileUrl = `/uploads/order/${fileName}`;
 
     return new Promise((resolve, reject) => {
       const fileStream = fs.createWriteStream(filePath);

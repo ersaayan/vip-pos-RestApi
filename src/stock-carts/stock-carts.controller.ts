@@ -84,6 +84,44 @@ export class StockCartsController {
     return await this.stockCartsService.transferStockCartHistoriesToStockCart();
   }
 
+  @Get('export-stock-cart-myor')
+  async exportStockCartMyor(@Res() res: Response) {
+    const filePath =
+      await this.stockCartsService.exportStockCartsToExcelForMyor();
+    res.sendFile(path.resolve(filePath));
+  }
+
+  @Get('export-stock-cart-history-myor')
+  async exportStockCartHistoryMyor(@Res() res: Response) {
+    const filePath =
+      await this.stockCartsService.exportStockCartHistoriesToExcelForMyor();
+    res.sendFile(path.resolve(filePath));
+  }
+
+  @Get('export-stock-cart-ikas')
+  async exportStockCartIkas(@Res() res: Response) {
+    const filePath =
+      await this.stockCartsService.exportStockCartsToExcelForIkas();
+    res.sendFile(path.resolve(filePath));
+  }
+
+  @Get('export-stock-cart-history-ikas')
+  async exportStockCartHistoryIkas(@Res() res: Response) {
+    const filePath =
+      await this.stockCartsService.exportStockCartHistoriesToExcelForIkas();
+    res.sendFile(path.resolve(filePath));
+  }
+
+  @Get('get-all-photos')
+  async getAllPhotos() {
+    return await this.stockCartsService.getAllPhotos();
+  }
+
+  @Get('get-all-photos-with-brand')
+  async getAllPhotosWithCaseBrand() {
+    return await this.stockCartsService.getAllPhotosWithCaseBrand();
+  }
+
   @Delete('stock-cart-all')
   async deleteAllStockCart() {
     return await this.stockCartsService.deleteAllStockCart();
@@ -118,31 +156,66 @@ export class StockCartsController {
     }
   }
 
-  @Get('export-stock-cart-myor')
-  async exportStockCartMyor(@Res() res: Response) {
-    const filePath =
-      await this.stockCartsService.exportStockCartsToExcelForMyor();
-    res.sendFile(path.resolve(filePath));
+  @Patch('/update-barcode/:id')
+  async updateBarcode(@Param('id') id: string, @Body() body: any) {
+    try {
+      return {
+        success: true,
+        message: 'Barcode updated successfully',
+        data: await this.stockCartsService.updateStockCartBarcode(
+          id,
+          body.barcode,
+        ),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Barcode not updated. Error: ${error.message}`,
+      };
+    }
   }
 
-  @Get('export-stock-cart-history-myor')
-  async exportStockCartHistoryMyor(@Res() res: Response) {
-    const filePath =
-      await this.stockCartsService.exportStockCartHistoriesToExcelForMyor();
-    res.sendFile(path.resolve(filePath));
+  @Patch('/update-image/:id')
+  @UseInterceptors(FileInterceptor('caseImage'))
+  async updateImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    try {
+      return {
+        success: true,
+        message: 'Image updated successfully',
+        data: await this.stockCartsService.updateStockCartImage(id, file),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Image not updated. Error: ${error.message}`,
+      };
+    }
   }
 
-  @Get('export-stock-cart-ikas')
-  async exportStockCartIkas(@Res() res: Response) {
-    const filePath =
-      await this.stockCartsService.exportStockCartsToExcelForIkas();
-    res.sendFile(path.resolve(filePath));
-  }
-
-  @Get('export-stock-cart-history-ikas')
-  async exportStockCartHistoryIkas(@Res() res: Response) {
-    const filePath =
-      await this.stockCartsService.exportStockCartHistoriesToExcelForIkas();
-    res.sendFile(path.resolve(filePath));
+  @Patch('/update-case-images')
+  @UseInterceptors(FileInterceptor('caseImage'))
+  async updateCaseImages(
+    @Body() body: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    try {
+      const oldImagePath = body.oldPhotoPath;
+      return {
+        success: true,
+        message: 'Case images updated successfully',
+        data: await this.stockCartsService.updateStockCartPhotos(
+          file,
+          oldImagePath,
+        ),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Case images not updated. Error: ${error.message}`,
+      };
+    }
   }
 }
