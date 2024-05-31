@@ -10,6 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
   });
+  app.setGlobalPrefix('api');
 
   app.use((req, res, next) => {
     res.set({
