@@ -195,21 +195,22 @@ export class StockCartsController {
     }
   }
 
-  @Patch('/update-case-images')
+  @Post('/update-case-images')
   @UseInterceptors(FileInterceptor('caseImage'))
   async updateCaseImages(
     @Body() body: any,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<any> {
     try {
-      const oldImagePath = body.oldPhotoPath;
+      console.log('body', body);
+      const result = await this.stockCartsService.updateStockCartPhotos(
+        file,
+        body,
+      );
       return {
         success: true,
         message: 'Case images updated successfully',
-        data: await this.stockCartsService.updateStockCartPhotos(
-          file,
-          oldImagePath,
-        ),
+        data: result,
       };
     } catch (error) {
       return {

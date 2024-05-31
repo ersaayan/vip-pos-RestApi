@@ -74,3 +74,5 @@ public/stockCarts/*.ico
 # exports files
 exports/*.xlsx
 spdmvs.txt
+
+python/.venv

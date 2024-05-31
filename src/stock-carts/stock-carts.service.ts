@@ -128,7 +128,11 @@ export class StockCartsService {
     return uniquePhotos;
   }
 
-  async updateStockCartPhotos(file: Express.Multer.File, oldPhotoPath: string) {
+  async updateStockCartPhotos(
+    file: Express.Multer.File,
+    data: any,
+  ): Promise<any> {
+    const oldPhotoPath = data.oldPhotoPath;
     const caseImageUrl = await this.saveImage(file);
     // Eski fotoğrafı sil
     const oldPhotoPathArray = oldPhotoPath.split('/');
@@ -140,9 +144,8 @@ export class StockCartsService {
       'public/stockCarts',
       oldPhotoName,
     );
-    fs.unlinkSync(oldPhotoPathResolved);
-    // stockcart tablosundaki caseImage alanını eski fotoğrafın yolu olanları yeni fotoğrafın yolu ile güncelle
-    return this.prisma.stockCart.updateMany({
+
+    const stockCarts = this.prisma.stockCart.updateMany({
       where: {
         caseImage: oldPhotoPath,
       },
@@ -150,6 +153,16 @@ export class StockCartsService {
         caseImage: caseImageUrl,
       },
     });
+
+    fs.unlink(oldPhotoPathResolved, (err) => {
+      if (err) {
+        console.error('Dosya silinirken bir hata oluştu:', err);
+      } else {
+        console.log('Dosya başarıyla silindi.');
+      }
+    });
+    // stockcart tablosundaki caseImage alanını eski fotoğrafın yolu olanları yeni fotoğrafın yolu ile güncelle
+    return stockCarts;
   }
 
   async deleteAllStockCartHistory() {
