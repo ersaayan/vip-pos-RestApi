@@ -24,7 +24,7 @@ export class OrderController {
   @Post('upload-file')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(@Body() body: any, @UploadedFile() file: Express.Multer.File) {
-    return this.orderService.uploadFile(file, body.orderId);
+    return this.orderService.uploadFile(body, file);
   }
 
   @Patch(':id')
@@ -60,6 +60,11 @@ export class OrderController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
+  }
+
+  @Get('get-order-files-by-order-id/:id')
+  getOrderFilesByOrderId(@Param('id') id: string) {
+    return this.orderService.getOrderFilesByOrderId(id);
   }
 
   @Delete(':id')
