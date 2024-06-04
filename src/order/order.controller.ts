@@ -27,9 +27,14 @@ export class OrderController {
     return this.orderService.uploadFile(body, file);
   }
 
-  @Patch(':id')
+  @Patch('order-status/:id')
   update(@Param('id') id: string, @Body() updateOrderDto: any) {
     return this.orderService.updateOrderStatus(id, updateOrderDto);
+  }
+
+  @Patch('order-details-status/:id')
+  updateOrderDetailStatus(@Param('id') id: string, @Body() body: any) {
+    return this.orderService.updateOrderDetailStatus(id, body);
   }
 
   @Get('get-all-orders-without-details')
