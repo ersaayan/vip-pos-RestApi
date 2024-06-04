@@ -23,15 +23,15 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    const accessToken = this.generateAccessToken(user.id);
+    const accessToken = this.generateAccessToken(user.id, user.roles[0]);
     return {
       accessToken,
       isSuccess: true,
     };
   }
 
-  private generateAccessToken(userId: string): string {
-    const payload = { userId };
+  private generateAccessToken(userId: string, userRole: string): string {
+    const payload = { userId, userRole };
     const options = { expiresIn: '12h' };
     return this.jwtService.sign(payload, options);
   }

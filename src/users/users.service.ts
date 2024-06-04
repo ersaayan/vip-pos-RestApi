@@ -11,14 +11,17 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const hassedPassword = await bcrypt.hash(
+    const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       roundsOfHashing,
     );
-    return this.prisma.user.create({
+    const role = JSON.parse(createUserDto.roles);
+    return await this.prisma.user.create({
       data: {
-        ...createUserDto,
-        password: hassedPassword,
+        name: createUserDto.name,
+        email: createUserDto.email,
+        password: hashedPassword,
+        roles: role,
       },
     });
   }
@@ -28,20 +31,36 @@ export class UsersService {
   }
 
   findOne(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(
-        updateUserDto.password,
-        roundsOfHashing,
-      );
-    }
-    return this.prisma.user.update({ where: { id }, data: updateUserDto });
+    const hashedPassword = await bcrypt.hash(
+      updateUserDto.password,
+      roundsOfHashing,
+    );
+    const role = JSON.parse(updateUserDto.roles);
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateUserDto,
+        password: hashedPassword,
+        roles: role,
+      },
+    });
   }
 
   remove(id: string) {
-    return this.prisma.user.delete({ where: { id } });
+    return this.prisma.user.delete({
+      where: {
+        id,
+      },
+    });
   }
 }

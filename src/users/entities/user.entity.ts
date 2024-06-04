@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
+import { $Enums, User } from '@prisma/client';
 
 export class UserEntity implements User {
   constructor(partial: Partial<UserEntity>) {
@@ -11,16 +12,10 @@ export class UserEntity implements User {
 
   @ApiProperty()
   id: string;
-
-  @ApiProperty()
   email: string;
-
-  @Exclude()
+  name: string;
   password: string;
-
-  @ApiProperty()
+  roles: $Enums.Role[];
   createdAt: Date;
-
-  @ApiProperty()
   updatedAt: Date;
 }

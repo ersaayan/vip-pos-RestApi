@@ -1,30 +1,47 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ProductsModule } from './products/products.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { StocksModule } from './stocks/stocks.module';
-import { join } from 'path';
+import { PhonesModule } from './phones/phones.module';
+import { StockCartsModule } from './stock-carts/stock-carts.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { OrderVerificationModule } from './order-verification/order-verification.module';
+import { OrderModule } from './order/order.module';
+import { CaseBrandModule } from './case-brand/case-brand.module';
+import { CaseModelVariationsModule } from './case-model-variations/case-model-variations.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { DatabaseModule } from './database/database.module';
-
+import { join } from 'path';
+import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
+import { StatusModule } from './status/status.module';
 @Module({
   imports: [
+    MulterModule.register({
+      dest: './public/img', // Dosyaların kaydedileceği klasör
+    }),
     UsersModule,
     PrismaModule,
-    ProductsModule,
+    AuthModule,
+    PhonesModule,
+    StockCartsModule,
+    OrderVerificationModule,
+    OrderModule,
+    CaseBrandModule,
+    CaseModelVariationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    AuthModule,
-    StocksModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/uploads',
     }),
-    DatabaseModule,
+    StatusModule,
   ],
+  controllers: [],
   providers: [ConfigService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthenticationMiddleware).forRoutes('/order-verification');
+  }
+}

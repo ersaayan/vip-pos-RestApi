@@ -14,55 +14,163 @@ datasource db {
 }
 
 enum Role {
-  USER
   ADMIN
+  USER
+  MANUFACTURER
 }
 
 model User {
-  id                 String               @id @default(uuid())
-  email              String               @unique
-  name               String?
-  role               Role                 @default(USER)
-  password           String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  OrderVerifications OrderVerifications[]
+  id                        String                      @id @default(cuid())
+  email                     String                      @unique
+  name                      String?
+  password                  String
+  roles                     Role[]
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  StockCart                 StockCart[]
+  StockCartHistory          StockCartHistory[]
+  PlatformOrderVerification PlatformOrderVerification[]
+  Order                     Order[]
+  OrderVerifications        OrderVerifications[]
 }
 
-model Product {
-  id                       String   @id @default(cuid())
-  PhoneBrandModelName      String
-  PhoneBrandModelStockCode String
-  PhoneBrandName           String
-  PhoneModelGroupCode      String
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+model Phone {
+  id               String             @id @default(cuid())
+  brand            String
+  model            String
+  name             String
+  ikasGroupCode    String?
+  myorGroupCode    String?
+  stockCode        String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  stockCart        StockCart[]
+  StockCartHistory StockCartHistory[]
 }
 
-model StockKart {
-  id                  String   @id @default(cuid())
-  CaseBrand           String
-  CaseModelImage      String
-  CaseModelVariations String[]
-  CaseModelTitle      String
-  ProductIds          String[]
-  Description         String?
-  Barcode             String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+model CaseBrand {
+  id               String             @id @default(cuid())
+  brandName        String
+  myorGroupCode    String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  StockCart        StockCart[]
+  StockCartHistory StockCartHistory[]
 }
 
-model StockKartYedek {
-  id                  String   @id @default(cuid())
-  CaseBrand           String
-  CaseModelImage      String
-  CaseModelVariations String[]
-  CaseModelTitle      String
-  ProductIds          String[]
-  Description         String?
-  Barcode             String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+model CaseModelVariation {
+  id                String             @id @default(cuid())
+  modelVariation    String
+  modelVariationEng String
+  myorGroupCode     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  StockCart         StockCart[]
+  StockCartHistory  StockCartHistory[]
+}
+
+model StockCart {
+  id                 String             @id @default(cuid())
+  phoneId            String
+  caseBrand          String
+  caseModelVariation String
+  caseImage          String?
+  title              String?
+  description        String?
+  barcode            String?
+  cost               Float?
+  satisFiyat1        Float?
+  satisFiyat2        Float?
+  satisFiyat3        Float?
+  satisFiyat4        Float?
+  quantity           Int?
+  updatedBy          String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  Phone              Phone              @relation(fields: [phoneId], references: [id])
+  User               User?              @relation(fields: [updatedBy], references: [id])
+  CaseBrand          CaseBrand          @relation(fields: [caseBrand], references: [id])
+  CaseModelVariation CaseModelVariation @relation(fields: [caseModelVariation], references: [id])
+  OrderDetail        OrderDetail[]
+}
+
+model StockCartHistory {
+  id                 String             @id @default(cuid())
+  phoneId            String
+  caseBrand          String
+  caseModelVariation String
+  caseImage          String?
+  title              String?
+  description        String?
+  barcode            String?
+  cost               Float?
+  satisFiyat1        Float?
+  satisFiyat2        Float?
+  satisFiyat3        Float?
+  satisFiyat4        Float?
+  quantity           Int?
+  updatedBy          String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  Phone              Phone              @relation(fields: [phoneId], references: [id])
+  User               User?              @relation(fields: [updatedBy], references: [id])
+  CaseBrand          CaseBrand          @relation(fields: [caseBrand], references: [id])
+  CaseModelVariation CaseModelVariation @relation(fields: [caseModelVariation], references: [id])
+}
+
+model PlatformOrderVerification {
+  id           String   @id @default(cuid())
+  kargoTakipNo String
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  User         User     @relation(fields: [userId], references: [id])
+}
+
+model Status {
+  id          String        @id @default(cuid())
+  status      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Order       Order[]
+  OrderDetail OrderDetail[]
+}
+
+model Order {
+  id          String        @id @default(cuid())
+  orderCost   Float
+  userId      String
+  statusId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  User        User          @relation(fields: [userId], references: [id])
+  Status      Status        @relation(fields: [statusId], references: [id])
+  OrderFiles  OrderFiles[]
+  OrderDetail OrderDetail[]
+}
+
+model OrderDetail {
+  id        String    @id @default(cuid())
+  orderId   String
+  statusid  String
+  stockCart String
+  quantity  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Order     Order     @relation(fields: [orderId], references: [id])
+  StockCart StockCart @relation(fields: [stockCart], references: [id])
+  Status    Status    @relation(fields: [statusid], references: [id])
+}
+
+model OrderFiles {
+  id        String   @id @default(cuid())
+  orderId   String
+  fileName  String
+  fileType  String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order    @relation(fields: [orderId], references: [id])
 }
 
 model OrderVerifications {

@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from 'src/users/users.module';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { ProductsModule } from 'src/products/products.module';
 
 const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
 
@@ -14,14 +13,12 @@ const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
   imports: [
     PrismaModule,
     PassportModule,
+    UsersModule,
     JwtModule.register({
       secret: jwt_secret,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: '12h' },
     }),
-    UsersModule,
-    ProductsModule,
   ],
-
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
