@@ -139,6 +139,10 @@ def dun_toplam_siparis_sayisi():
         AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
         AND ConnectSiparisEk.PlatformDurum != 'Cancelled' AND PlatformDurum != 'Returned' AND PlatformDurum != 'UnDelivered';
     """
+        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE())-1, 0)
+        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
+        AND ConnectSiparisEk.PlatformDurum != 'Cancelled' AND PlatformDurum != 'Returned' AND PlatformDurum != 'UnDelivered';
+    """
     )
     row = cursor.fetchone()
     result = {"TOTAL": row.TOTAL}
@@ -149,6 +153,7 @@ def dun_toplam_siparis_sayisi():
 @app.route("/flask/dun_toplam_satis_sayisi", methods=["GET"])
 @cross_origin()
 def dun_toplam_satis_sayisi():
+def dun_toplam_satis_sayisi():
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -156,6 +161,8 @@ def dun_toplam_satis_sayisi():
         FROM ConnectSiparisEk
         INNER JOIN ConnectSiparisKalemleri ON ConnectSiparisKalemleri.SiparisId = ConnectSiparisEk.SiparisId
         INNER JOIN ConnectSiparis ON ConnectSiparis.Id = ConnectSiparisKalemleri.SiparisId 
+        WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) - 1, 0)
+        AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
         WHERE ConnectSiparis.SiparisTarihi >= DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()) - 1, 0)
         AND ConnectSiparis.SiparisTarihi < DATEADD(DAY, DATEDIFF(DAY, 0, GETDATE()), 0)
         AND ConnectSiparisKalemleri.PlatformStatus != 'Cancelled' AND PlatformDurum != 'Returned' AND PlatformDurum != 'UnDelivered';
