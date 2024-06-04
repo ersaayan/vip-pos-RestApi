@@ -31,7 +31,6 @@ model User {
   StockCartHistory          StockCartHistory[]
   PlatformOrderVerification PlatformOrderVerification[]
   Order                     Order[]
-  OrderVerifications        OrderVerifications[]
 }
 
 model Phone {
@@ -171,13 +170,4 @@ model OrderFiles {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Order     Order    @relation(fields: [orderId], references: [id])
-}
-
-model OrderVerifications {
-  id             String   @id @default(cuid())
-  kargoTakipNo   String
-  confiredByUser String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  User           User     @relation(fields: [confiredByUser], references: [id])
 }
