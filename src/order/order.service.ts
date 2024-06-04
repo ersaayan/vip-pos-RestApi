@@ -61,35 +61,34 @@ export class OrderService {
     };
   }
 
-  async uploadFile(file: Express.Multer.File, orderId: string) {
-    const fileUrl = await this.saveImage(file, orderId);
-    return this.prisma.orderFiles.create({
+  async uploadFile(body: any, file: Express.Multer.File): Promise<any> {
+    const orderId = body.orderId;
+    const fileUrl = await this.saveImage(file);
+    const createdData = await this.prisma.orderFiles.create({
       data: {
         Order: {
           connect: {
             id: orderId,
           },
         },
-        fileName: orderId + file.filename,
+        fileName: `${Date.now()}-${file.originalname}`,
         fileType: file.mimetype,
         fileUrl: fileUrl,
       },
     });
+    return createdData;
   }
 
-  private saveImage(
-    file: Express.Multer.File,
-    orderId: string,
-  ): Promise<string> {
-    const fileName = `${orderId}-${file.originalname}`;
+  private saveImage(file: Express.Multer.File): Promise<string> {
+    const fileName = `${Date.now()}-${file.originalname}`;
     const filePath = path.resolve(
       __dirname,
       '..',
       '..',
-      'public/order',
+      'public/orderFiles',
       fileName,
     );
-    const fileUrl = `/uploads/order/${fileName}`;
+    const fileUrl = `/uploads/orderFiles/${fileName}`;
 
     return new Promise((resolve, reject) => {
       const fileStream = fs.createWriteStream(filePath);
@@ -97,6 +96,14 @@ export class OrderService {
       fileStream.on('error', reject);
       fileStream.write(file.buffer);
       fileStream.end();
+    });
+  }
+
+  getOrderFilesByOrderId(orderId: string) {
+    return this.prisma.orderFiles.findMany({
+      where: {
+        orderId,
+      },
     });
   }
 
@@ -236,6 +243,19 @@ export class OrderService {
   removeOrderWithDetails(id: string) {
     return this.prisma.order.delete({
       where: { id },
+    });
+  }
+
+  updateOrderDetailStatus(id: string, statusId: string) {
+    return this.prisma.orderDetail.update({
+      where: { id },
+      data: {
+        Status: {
+          connect: {
+            id: statusId,
+          },
+        },
+      },
     });
   }
 }

@@ -71,8 +71,11 @@ public/stockCarts/*.webp
 public/stockCarts/*.gif
 public/stockCarts/*.svg
 public/stockCarts/*.ico
+public/stockCarts/*.pdf
+public/orderFiles/*.pdf
 # exports files
 exports/*.xlsx
 spdmvs.txt
 
 python/.venv
+public/orderFiles/*.pdf

@@ -13,6 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
+import { StatusModule } from './status/status.module';
 @Module({
   imports: [
     MulterModule.register({
@@ -34,6 +35,7 @@ import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/uploads',
     }),
+    StatusModule,
   ],
   controllers: [],
   providers: [ConfigService],
