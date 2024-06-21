@@ -4,8 +4,9 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { AllExceptionsFilter } from './http-client-exception/http-exception.filter';
+
 declare const module: any;
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
@@ -32,10 +33,7 @@ async function bootstrap() {
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
-  app.useGlobalFilters(
-    new PrismaClientExceptionFilter(httpAdapter),
-    new AllExceptionsFilter(),
-  );
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
     prefix: '/public/',

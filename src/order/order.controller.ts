@@ -8,13 +8,53 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as path from 'path';
+import { Response } from 'express';
 
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private orderService: OrderService) {}
+
+  @Get('export-orders-to-excel-admin/:id/:caseName')
+  async getExportOrdersWithDetailsToExcelForAdmin(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Param('caseName') caseName: string,
+  ) {
+    const filePath =
+      await this.orderService.exportOrdersWithDetailsToExcelForAdmin(
+        id,
+        caseName,
+      );
+    const fileName = path.basename(filePath);
+    res.download(filePath, fileName);
+  }
+
+  @Get('export-orders-to-excel-user/:id/:orderId/:caseName')
+  async getExportOrdersWithDetailsToExcelByUserId(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Param('orderId') orderId: string,
+    @Param('caseName') caseName: string,
+  ) {
+    const filePath =
+      await this.orderService.exportOrdersWithDetailsToExcelByUserId(
+        id,
+        orderId,
+        caseName,
+      );
+    const fileName = path.basename(filePath);
+    res.download(filePath, fileName);
+  }
+
+  @Get('list-uploaded-files/:orderId')
+  listUploadedFiles(@Param('orderId') orderId: string) {
+    return this.orderService.getUploadedFilesByOrderId(orderId);
+  }
 
   @Post()
   create(@Body() body: any) {
@@ -28,13 +68,21 @@ export class OrderController {
   }
 
   @Patch('order-status/:id')
-  update(@Param('id') id: string, @Body() updateOrderDto: any) {
-    return this.orderService.updateOrderStatus(id, updateOrderDto);
+  update(@Param('id') id: string, @Body() body: any) {
+    return this.orderService.updateOrderStatus(id, body);
   }
 
-  @Patch('order-details-status/:id')
-  updateOrderDetailStatus(@Param('id') id: string, @Body() body: any) {
-    return this.orderService.updateOrderDetailStatus(id, body);
+  @Patch('order-details-status/:orderId/:caseBrandId')
+  updateOrderDetailStatus(
+    @Param('orderId') orderId: string,
+    @Param('caseBrandId') caseBrandId: string,
+    @Body() body: any,
+  ) {
+    return this.orderService.updateOrderDetailStatus(
+      orderId,
+      caseBrandId,
+      body,
+    );
   }
 
   @Get('get-all-orders-without-details')
@@ -75,5 +123,10 @@ export class OrderController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.orderService.removeOrderWithDetails(id);
+  }
+
+  @Delete('delete-uploaded-file/:id')
+  removeUploadedFile(@Param('id') id: string) {
+    return this.orderService.deleteOrderFile(id);
   }
 }

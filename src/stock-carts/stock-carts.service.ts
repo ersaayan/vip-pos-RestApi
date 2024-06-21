@@ -174,7 +174,11 @@ export class StockCartsService {
   }
 
   async getAllStockCartHistoryWithCustomOutput() {
-    const stockCarts = await this.prisma.stockCartHistory.findMany();
+    const stockCarts = await this.prisma.stockCartHistory.findMany({
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
     const stockCartsWithCustomOutput = await Promise.all(
       stockCarts.map(async (stockCartHistory) => {
         const caseBrand = await this.caseBrandService.findOne(

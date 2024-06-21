@@ -23,16 +23,23 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    const accessToken = this.generateAccessToken(user.id, user.roles[0]);
+    const accessToken = await this.generateAccessToken(user.id, user.roles[0]);
     return {
       accessToken,
       isSuccess: true,
     };
   }
 
-  private generateAccessToken(userId: string, userRole: string): string {
-    const payload = { userId, userRole };
+  private async generateAccessToken(
+    userId: string,
+    userRole: string,
+  ): Promise<string> {
+    // get user name from user id
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const username = user.name;
+    const payload = { userId, userRole, username };
     const options = { expiresIn: '12h' };
+    console.log();
     return this.jwtService.sign(payload, options);
   }
 }

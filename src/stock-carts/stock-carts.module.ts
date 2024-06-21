@@ -5,6 +5,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { CaseBrandModule } from 'src/case-brand/case-brand.module';
 import { CaseModelVariationsModule } from 'src/case-model-variations/case-model-variations.module';
 import { PhonesModule } from 'src/phones/phones.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   controllers: [StockCartsController],
@@ -14,6 +15,7 @@ import { PhonesModule } from 'src/phones/phones.module';
     CaseBrandModule,
     CaseModelVariationsModule,
     PhonesModule,
+    MulterModule.register({ dest: './uploads' }),
   ],
   exports: [StockCartsService],
 })

@@ -22,7 +22,11 @@ export class PhonesService {
   }
 
   findAll() {
-    return this.prisma.phone.findMany();
+    return this.prisma.phone.findMany({
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
   }
 
   findOne(id: string) {

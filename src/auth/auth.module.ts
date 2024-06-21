@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
 
@@ -20,6 +21,7 @@ const jwt_secret = process.env.JWT_SECRET || 'jwt_secret_key@@';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}

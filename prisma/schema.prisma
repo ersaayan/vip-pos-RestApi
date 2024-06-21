@@ -171,3 +171,170 @@ model OrderFiles {
   updatedAt DateTime @updatedAt
   Order     Order    @relation(fields: [orderId], references: [id])
 }
+
+model SentosProduct {
+  id                Int             @id @default(autoincrement())
+  categoryId        Int
+  sku               String
+  name              String
+  invoiceName       String?
+  brand             String
+  description       String
+  purchasePrice     Float
+  salePrice         Float
+  currency          String
+  vatRate           Int
+  volumetricWeight  Float
+  barcode           String?
+  prices            SentosPrice?
+  variants          SentosVariant[]
+  descriptionDetail String?
+}
+
+model SentosPrice {
+  id            Int                @id @default(autoincrement())
+  productId     Int                @unique
+  product       SentosProduct      @relation(fields: [productId], references: [id])
+  n11           SentosPriceDetail? @relation("n11Relation", fields: [n11Id], references: [id])
+  n11Id         Int?
+  trendyol      SentosPriceDetail? @relation("trendyolRelation", fields: [trendyolId], references: [id])
+  trendyolId    Int?
+  hepsiburada   SentosPriceDetail? @relation("hepsiburadaRelation", fields: [hepsiburadaId], references: [id])
+  hepsiburadaId Int?
+  ciceksepeti   SentosPriceDetail? @relation("ciceksepetiRelation", fields: [ciceksepetiId], references: [id])
+  ciceksepetiId Int?
+  epttavm       SentosPriceDetail? @relation("epttavmRelation", fields: [epttavmId], references: [id])
+  epttavmId     Int?
+  pazarama      SentosPriceDetail? @relation("pazaramaRelation", fields: [pazaramaId], references: [id])
+  pazaramaId    Int?
+  modanisa      SentosPriceDetail? @relation("modanisaRelation", fields: [modanisaId], references: [id])
+  modanisaId    Int?
+  pasaj         SentosPriceDetail? @relation("pasajRelation", fields: [pasajId], references: [id])
+  pasajId       Int?
+  amazon        SentosPriceDetail? @relation("amazonRelation", fields: [amazonId], references: [id])
+  amazonId      Int?
+  beymen        SentosPriceDetail? @relation("beymenRelation", fields: [beymenId], references: [id])
+  beymenId      Int?
+  lcw           SentosPriceDetail? @relation("lcwRelation", fields: [lcwId], references: [id])
+  lcwId         Int?
+  teknosa       SentosPriceDetail? @relation("teknosaRelation", fields: [teknosaId], references: [id])
+  teknosaId     Int?
+  idefix        SentosPriceDetail? @relation("idefixRelation", fields: [idefixId], references: [id])
+  idefixId      Int?
+  joom          SentosPriceDetail? @relation("joomRelation", fields: [joomId], references: [id])
+  joomId        Int?
+  etsy          SentosPriceDetail? @relation("etsyRelation", fields: [etsyId], references: [id])
+  etsyId        Int?
+  hepsiglobal   SentosPriceDetail? @relation("hepsiglobalRelation", fields: [hepsiglobalId], references: [id])
+  hepsiglobalId Int?
+  exporgin      SentosPriceDetail? @relation("exporginRelation", fields: [exporginId], references: [id])
+  exporginId    Int?
+  woo           SentosPriceDetail? @relation("wooRelation", fields: [wooId], references: [id])
+  wooId         Int?
+  idea          SentosPriceDetail? @relation("ideaRelation", fields: [ideaId], references: [id])
+  ideaId        Int?
+  tsft          SentosPriceDetail? @relation("tsftRelation", fields: [tsftId], references: [id])
+  tsftId        Int?
+  hipotenus     SentosPriceDetail? @relation("hipotenusRelation", fields: [hipotenusId], references: [id])
+  hipotenusId   Int?
+  opencart      SentosPriceDetail? @relation("opencartRelation", fields: [opencartId], references: [id])
+  opencartId    Int?
+  ethica        SentosPriceDetail? @relation("ethicaRelation", fields: [ethicaId], references: [id])
+  ethicaId      Int?
+  ikas          SentosPriceDetail? @relation("ikasRelation", fields: [ikasId], references: [id])
+  ikasId        Int?
+  ozon          SentosPriceDetail? @relation("ozonRelation", fields: [ozonId], references: [id])
+  ozonId        Int?
+  shopify       SentosPriceDetail? @relation("shopifyRelation", fields: [shopifyId], references: [id])
+  shopifyId     Int?
+  boyner        SentosPriceDetail? @relation("boynerRelation", fields: [boynerId], references: [id])
+  boynerId      Int?
+
+  @@unique([n11Id], name: "unique_n11Id")
+  @@unique([trendyolId], name: "unique_trendyolId")
+  @@unique([hepsiburadaId], name: "unique_hepsiburadaId")
+  @@unique([ciceksepetiId], name: "unique_ciceksepetiId")
+  @@unique([epttavmId], name: "unique_epttavmId")
+  @@unique([pazaramaId], name: "unique_pazaramaId")
+  @@unique([modanisaId], name: "unique_modanisaId")
+  @@unique([pasajId], name: "unique_pasajId")
+  @@unique([amazonId], name: "unique_amazonId")
+  @@unique([beymenId], name: "unique_beymenId")
+  @@unique([lcwId], name: "unique_lcwId")
+  @@unique([teknosaId], name: "unique_teknosaId")
+  @@unique([idefixId], name: "unique_idefixId")
+  @@unique([joomId], name: "unique_joomId")
+  @@unique([etsyId], name: "unique_etsyId")
+  @@unique([hepsiglobalId], name: "unique_hepsiglobalId")
+  @@unique([exporginId], name: "unique_exporginId")
+  @@unique([wooId], name: "unique_wooId")
+  @@unique([ideaId], name: "unique_ideaId")
+  @@unique([tsftId], name: "unique_tsftId")
+  @@unique([hipotenusId], name: "unique_hipotenusId")
+  @@unique([opencartId], name: "unique_opencartId")
+  @@unique([ethicaId], name: "unique_ethicaId")
+  @@unique([ikasId], name: "unique_ikasId")
+  @@unique([ozonId], name: "unique_ozonId")
+  @@unique([shopifyId], name: "unique_shopifyId")
+  @@unique([boynerId], name: "unique_boynerId")
+}
+
+model SentosPriceDetail {
+  id          Int          @id @default(autoincrement())
+  listPrice   Float
+  salePrice   Float
+  n11         SentosPrice? @relation("n11Relation")
+  trendyol    SentosPrice? @relation("trendyolRelation")
+  hepsiburada SentosPrice? @relation("hepsiburadaRelation")
+  ciceksepeti SentosPrice? @relation("ciceksepetiRelation")
+  epttavm     SentosPrice? @relation("epttavmRelation")
+  pazarama    SentosPrice? @relation("pazaramaRelation")
+  modanisa    SentosPrice? @relation("modanisaRelation")
+  pasaj       SentosPrice? @relation("pasajRelation")
+  amazon      SentosPrice? @relation("amazonRelation")
+  beymen      SentosPrice? @relation("beymenRelation")
+  lcw         SentosPrice? @relation("lcwRelation")
+  teknosa     SentosPrice? @relation("teknosaRelation")
+  idefix      SentosPrice? @relation("idefixRelation")
+  joom        SentosPrice? @relation("joomRelation")
+  etsy        SentosPrice? @relation("etsyRelation")
+  hepsiglobal SentosPrice? @relation("hepsiglobalRelation")
+  exporgin    SentosPrice? @relation("exporginRelation")
+  woo         SentosPrice? @relation("wooRelation")
+  idea        SentosPrice? @relation("ideaRelation")
+  tsft        SentosPrice? @relation("tsftRelation")
+  hipotenus   SentosPrice? @relation("hipotenusRelation")
+  opencart    SentosPrice? @relation("opencartRelation")
+  ethica      SentosPrice? @relation("ethicaRelation")
+  ikas        SentosPrice? @relation("ikasRelation")
+  ozon        SentosPrice? @relation("ozonRelation")
+  shopify     SentosPrice? @relation("shopifyRelation")
+  boyner      SentosPrice? @relation("boynerRelation")
+}
+
+model SentosVariant {
+  id        Int           @id @default(autoincrement())
+  productId Int
+  sku       String
+  barcode   String
+  model     String?
+  color     String
+  product   SentosProduct @relation(fields: [productId], references: [id])
+  stocks    SentosStock[]
+  images    SentosImage[]
+}
+
+model SentosStock {
+  id        Int           @id @default(autoincrement())
+  variantId Int
+  warehouse Int
+  stock     Int
+  variant   SentosVariant @relation(fields: [variantId], references: [id])
+}
+
+model SentosImage {
+  id        Int           @id @default(autoincrement())
+  variantId Int
+  url       String
+  variant   SentosVariant @relation(fields: [variantId], references: [id])
+}

@@ -14,6 +14,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthenticationMiddleware } from './auth/middleware/auth.middleware';
 import { StatusModule } from './status/status.module';
+import { SentosProductsModule } from './sentos-products/sentos-products.module';
 @Module({
   imports: [
     MulterModule.register({
@@ -36,6 +37,7 @@ import { StatusModule } from './status/status.module';
       serveRoot: '/uploads',
     }),
     StatusModule,
+    SentosProductsModule,
   ],
   controllers: [],
   providers: [ConfigService],
